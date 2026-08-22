@@ -1,5 +1,5 @@
 --[[
-    DRIFTWYN UI LIBRARY v3
+    DRIFTWYN UI LIBRARY v3.1
     Modern rebuild with a cleaner, softer visual system.
 
     Preserved core API:
@@ -107,6 +107,186 @@ local THEMES = {
         Success = Color3.fromRGB(79, 205, 126),
         Warning = Color3.fromRGB(236, 184, 72),
         Danger = Color3.fromRGB(230, 73, 84),
+    },
+
+    Crimson = {
+        Background = Color3.fromRGB(13, 8, 10),
+        Sidebar = Color3.fromRGB(17, 10, 13),
+        Surface = Color3.fromRGB(23, 14, 17),
+        Surface2 = Color3.fromRGB(29, 17, 21),
+        Surface3 = Color3.fromRGB(36, 20, 25),
+        Border = Color3.fromRGB(63, 36, 43),
+        BorderSoft = Color3.fromRGB(44, 27, 32),
+        Accent = Color3.fromRGB(242, 54, 76),
+        AccentDark = Color3.fromRGB(164, 24, 44),
+        Text = Color3.fromRGB(250, 242, 244),
+        TextMuted = Color3.fromRGB(181, 148, 155),
+        TextDim = Color3.fromRGB(126, 94, 101),
+        Success = Color3.fromRGB(79, 205, 126),
+        Warning = Color3.fromRGB(236, 184, 72),
+        Danger = Color3.fromRGB(242, 71, 84),
+    },
+
+    Purple = {
+        Background = Color3.fromRGB(11, 9, 16),
+        Sidebar = Color3.fromRGB(15, 12, 21),
+        Surface = Color3.fromRGB(21, 17, 29),
+        Surface2 = Color3.fromRGB(27, 21, 37),
+        Surface3 = Color3.fromRGB(34, 26, 47),
+        Border = Color3.fromRGB(57, 46, 73),
+        BorderSoft = Color3.fromRGB(39, 32, 51),
+        Accent = Color3.fromRGB(157, 98, 255),
+        AccentDark = Color3.fromRGB(98, 53, 174),
+        Text = Color3.fromRGB(246, 242, 252),
+        TextMuted = Color3.fromRGB(169, 157, 187),
+        TextDim = Color3.fromRGB(112, 101, 130),
+        Success = Color3.fromRGB(82, 210, 132),
+        Warning = Color3.fromRGB(238, 188, 76),
+        Danger = Color3.fromRGB(232, 78, 101),
+    },
+
+    Ocean = {
+        Background = Color3.fromRGB(7, 13, 17),
+        Sidebar = Color3.fromRGB(9, 17, 22),
+        Surface = Color3.fromRGB(13, 23, 29),
+        Surface2 = Color3.fromRGB(16, 29, 36),
+        Surface3 = Color3.fromRGB(20, 36, 45),
+        Border = Color3.fromRGB(37, 61, 73),
+        BorderSoft = Color3.fromRGB(26, 44, 54),
+        Accent = Color3.fromRGB(48, 181, 222),
+        AccentDark = Color3.fromRGB(27, 111, 143),
+        Text = Color3.fromRGB(239, 248, 251),
+        TextMuted = Color3.fromRGB(145, 174, 184),
+        TextDim = Color3.fromRGB(90, 119, 130),
+        Success = Color3.fromRGB(72, 210, 142),
+        Warning = Color3.fromRGB(239, 188, 77),
+        Danger = Color3.fromRGB(231, 80, 92),
+    },
+
+    Emerald = {
+        Background = Color3.fromRGB(8, 14, 12),
+        Sidebar = Color3.fromRGB(10, 18, 15),
+        Surface = Color3.fromRGB(14, 25, 21),
+        Surface2 = Color3.fromRGB(17, 31, 26),
+        Surface3 = Color3.fromRGB(21, 39, 32),
+        Border = Color3.fromRGB(38, 67, 56),
+        BorderSoft = Color3.fromRGB(27, 48, 40),
+        Accent = Color3.fromRGB(63, 207, 139),
+        AccentDark = Color3.fromRGB(31, 127, 83),
+        Text = Color3.fromRGB(240, 249, 245),
+        TextMuted = Color3.fromRGB(149, 181, 166),
+        TextDim = Color3.fromRGB(94, 124, 110),
+        Success = Color3.fromRGB(63, 207, 139),
+        Warning = Color3.fromRGB(237, 188, 72),
+        Danger = Color3.fromRGB(230, 80, 92),
+    },
+
+    Rose = {
+        Background = Color3.fromRGB(16, 10, 14),
+        Sidebar = Color3.fromRGB(21, 13, 18),
+        Surface = Color3.fromRGB(29, 18, 25),
+        Surface2 = Color3.fromRGB(36, 22, 31),
+        Surface3 = Color3.fromRGB(45, 27, 38),
+        Border = Color3.fromRGB(73, 45, 63),
+        BorderSoft = Color3.fromRGB(51, 32, 44),
+        Accent = Color3.fromRGB(241, 103, 154),
+        AccentDark = Color3.fromRGB(160, 58, 98),
+        Text = Color3.fromRGB(252, 243, 247),
+        TextMuted = Color3.fromRGB(190, 156, 171),
+        TextDim = Color3.fromRGB(132, 103, 116),
+        Success = Color3.fromRGB(79, 205, 126),
+        Warning = Color3.fromRGB(237, 186, 72),
+        Danger = Color3.fromRGB(234, 83, 104),
+    },
+
+    Amber = {
+        Background = Color3.fromRGB(15, 12, 7),
+        Sidebar = Color3.fromRGB(20, 16, 9),
+        Surface = Color3.fromRGB(28, 22, 12),
+        Surface2 = Color3.fromRGB(35, 27, 14),
+        Surface3 = Color3.fromRGB(44, 34, 17),
+        Border = Color3.fromRGB(72, 56, 29),
+        BorderSoft = Color3.fromRGB(51, 40, 22),
+        Accent = Color3.fromRGB(240, 172, 54),
+        AccentDark = Color3.fromRGB(157, 104, 23),
+        Text = Color3.fromRGB(252, 247, 236),
+        TextMuted = Color3.fromRGB(189, 172, 139),
+        TextDim = Color3.fromRGB(129, 113, 83),
+        Success = Color3.fromRGB(82, 204, 126),
+        Warning = Color3.fromRGB(240, 172, 54),
+        Danger = Color3.fromRGB(232, 78, 83),
+    },
+
+    Cyber = {
+        Background = Color3.fromRGB(5, 9, 12),
+        Sidebar = Color3.fromRGB(7, 13, 17),
+        Surface = Color3.fromRGB(9, 19, 24),
+        Surface2 = Color3.fromRGB(11, 25, 31),
+        Surface3 = Color3.fromRGB(14, 32, 40),
+        Border = Color3.fromRGB(25, 65, 75),
+        BorderSoft = Color3.fromRGB(17, 45, 53),
+        Accent = Color3.fromRGB(0, 232, 210),
+        AccentDark = Color3.fromRGB(0, 132, 123),
+        Text = Color3.fromRGB(231, 255, 252),
+        TextMuted = Color3.fromRGB(127, 187, 181),
+        TextDim = Color3.fromRGB(77, 129, 125),
+        Success = Color3.fromRGB(0, 232, 161),
+        Warning = Color3.fromRGB(242, 198, 66),
+        Danger = Color3.fromRGB(244, 76, 104),
+    },
+
+    AMOLED = {
+        Background = Color3.fromRGB(0, 0, 0),
+        Sidebar = Color3.fromRGB(3, 3, 3),
+        Surface = Color3.fromRGB(8, 8, 8),
+        Surface2 = Color3.fromRGB(13, 13, 13),
+        Surface3 = Color3.fromRGB(19, 19, 19),
+        Border = Color3.fromRGB(39, 39, 39),
+        BorderSoft = Color3.fromRGB(26, 26, 26),
+        Accent = Color3.fromRGB(225, 44, 62),
+        AccentDark = Color3.fromRGB(139, 22, 37),
+        Text = Color3.fromRGB(248, 248, 248),
+        TextMuted = Color3.fromRGB(157, 157, 157),
+        TextDim = Color3.fromRGB(98, 98, 98),
+        Success = Color3.fromRGB(72, 211, 125),
+        Warning = Color3.fromRGB(238, 188, 70),
+        Danger = Color3.fromRGB(234, 73, 86),
+    },
+
+    Discord = {
+        Background = Color3.fromRGB(30, 31, 34),
+        Sidebar = Color3.fromRGB(24, 25, 28),
+        Surface = Color3.fromRGB(43, 45, 49),
+        Surface2 = Color3.fromRGB(49, 51, 56),
+        Surface3 = Color3.fromRGB(56, 58, 64),
+        Border = Color3.fromRGB(72, 74, 81),
+        BorderSoft = Color3.fromRGB(54, 56, 62),
+        Accent = Color3.fromRGB(88, 101, 242),
+        AccentDark = Color3.fromRGB(65, 76, 187),
+        Text = Color3.fromRGB(242, 243, 245),
+        TextMuted = Color3.fromRGB(181, 186, 193),
+        TextDim = Color3.fromRGB(148, 155, 164),
+        Success = Color3.fromRGB(35, 165, 90),
+        Warning = Color3.fromRGB(240, 178, 50),
+        Danger = Color3.fromRGB(237, 66, 69),
+    },
+
+    Light = {
+        Background = Color3.fromRGB(242, 244, 248),
+        Sidebar = Color3.fromRGB(234, 237, 242),
+        Surface = Color3.fromRGB(255, 255, 255),
+        Surface2 = Color3.fromRGB(247, 248, 251),
+        Surface3 = Color3.fromRGB(235, 238, 244),
+        Border = Color3.fromRGB(202, 207, 218),
+        BorderSoft = Color3.fromRGB(220, 224, 232),
+        Accent = Color3.fromRGB(213, 49, 68),
+        AccentDark = Color3.fromRGB(151, 29, 45),
+        Text = Color3.fromRGB(31, 34, 42),
+        TextMuted = Color3.fromRGB(94, 101, 115),
+        TextDim = Color3.fromRGB(130, 137, 150),
+        Success = Color3.fromRGB(46, 160, 91),
+        Warning = Color3.fromRGB(190, 132, 31),
+        Danger = Color3.fromRGB(206, 55, 69),
     },
 }
 
@@ -487,7 +667,7 @@ function DriftwynUI:CreateWindow(options)
         Position = UDim2.new(0,16,1,-14),
         Size = UDim2.new(1,-32,0,20),
         BackgroundTransparency = 1,
-        Text = options.Version or "v3.0",
+        Text = options.Version or "v3.1",
         Font = FONT.Medium,
         TextSize = 11,
         TextColor3 = T.TextDim,
@@ -1338,8 +1518,8 @@ function DriftwynUI:CreateWindow(options)
                 addTexts(row, data.Name or "Dropdown", data.Description or "", 210)
 
                 local selector = New("TextButton", {
-                    AnchorPoint = Vector2.new(1,0.5),
-                    Position = UDim2.new(1,-8,0.5,0),
+                    AnchorPoint = Vector2.new(1,0),
+                    Position = UDim2.new(1,-8,0,12),
                     Size = UDim2.fromOffset(180,36),
                     BackgroundColor3 = T.Surface2,
                     BorderSizePixel = 0,
@@ -1394,6 +1574,7 @@ function DriftwynUI:CreateWindow(options)
                 local function closeMenu()
                     open = false
                     Tween(menu,0.14,{Size = UDim2.fromOffset(180,0)})
+                    Tween(row,0.14,{Size = UDim2.new(1,-20,0,60)})
                     task.delay(0.14,function()
                         if not open and menu.Parent then menu.Visible = false end
                     end)
@@ -1456,6 +1637,7 @@ function DriftwynUI:CreateWindow(options)
                         rebuild()
                         local h = math.min(#values*32 + 8, 168)
                         menu.Visible = true
+                        Tween(row,0.16,{Size = UDim2.new(1,-20,0,58 + h)})
                         Tween(menu,0.16,{Size = UDim2.fromOffset(180,h)})
                         Tween(arrow,0.14,{Rotation = 180})
                     else
@@ -1491,8 +1673,8 @@ function DriftwynUI:CreateWindow(options)
                 addTexts(row, data.Name or "Multi Dropdown", data.Description or "", 210)
 
                 local selector = New("TextButton", {
-                    AnchorPoint = Vector2.new(1,0.5),
-                    Position = UDim2.new(1,-8,0.5,0),
+                    AnchorPoint = Vector2.new(1,0),
+                    Position = UDim2.new(1,-8,0,12),
                     Size = UDim2.fromOffset(180,36),
                     BackgroundColor3 = T.Surface2,
                     BorderSizePixel = 0,
@@ -1613,10 +1795,12 @@ function DriftwynUI:CreateWindow(options)
                         rebuild()
                         local h = math.min(#values*32 + 8, 168)
                         menu.Visible = true
+                        Tween(row,0.16,{Size = UDim2.new(1,-20,0,58 + h)})
                         Tween(menu,0.16,{Size = UDim2.fromOffset(180,h)})
                         Tween(arrow,0.14,{Rotation = 180})
                     else
                         Tween(menu,0.14,{Size = UDim2.fromOffset(180,0)})
+                        Tween(row,0.14,{Size = UDim2.new(1,-20,0,60)})
                         Tween(arrow,0.14,{Rotation = 0})
                         task.delay(0.14,function()
                             if not open and menu.Parent then menu.Visible = false end
@@ -1784,8 +1968,8 @@ function DriftwynUI:CreateWindow(options)
                 addTexts(row,data.Name or "Color",data.Description or "",120)
 
                 local preview = New("TextButton", {
-                    AnchorPoint = Vector2.new(1,0.5),
-                    Position = UDim2.new(1,-8,0.5,0),
+                    AnchorPoint = Vector2.new(1,0),
+                    Position = UDim2.new(1,-8,0,11),
                     Size = UDim2.fromOffset(76,34),
                     BackgroundColor3 = value,
                     BorderSizePixel = 0,
@@ -1929,9 +2113,11 @@ function DriftwynUI:CreateWindow(options)
                     open = not open
                     if open then
                         popup.Visible = true
+                        Tween(row,0.16,{Size = UDim2.new(1,-20,0,188)})
                         Tween(popup,0.16,{Size = UDim2.fromOffset(220,132)})
                     else
                         Tween(popup,0.14,{Size = UDim2.fromOffset(220,0)})
+                        Tween(row,0.14,{Size = UDim2.new(1,-20,0,56)})
                         task.delay(0.14,function()
                             if not open and popup.Parent then popup.Visible = false end
                         end)
