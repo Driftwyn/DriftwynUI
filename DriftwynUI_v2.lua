@@ -1,5 +1,5 @@
 --[[
-    DRIFTWYN UI LIBRARY v2
+    DRIFTWYN UI LIBRARY v2.1 - ROUND MINIMIZE FIX
     Red / Black / Metallic Roblox UI library
 
     ADDED IN V2:
@@ -2663,33 +2663,128 @@ function DriftwynUI:CreateWindow(options)
     MakeDraggable(main, header)
 
     local minimized = false
-    local originalSize = main.Size
 
-    minimize.MouseButton1Click:Connect(function()
-        minimized = not minimized
+    -- v2.1: The main window is NEVER resized when minimized.
+    -- It is hidden completely and replaced by this independent circular button.
+    local miniButton = New("TextButton", {
+        Name = "DriftwynMiniButton",
+        AnchorPoint = Vector2.new(1, 1),
+        Position = UDim2.new(1, -22, 1, -22),
+        Size = UDim2.fromOffset(60, 60),
+        BackgroundColor3 = T.Accent3,
+        BorderSizePixel = 0,
+        Text = options.IconText or "DH",
+        Font = FONT.Black,
+        TextSize = 16,
+        TextColor3 = T.Text,
+        AutoButtonColor = false,
+        Visible = false,
+        ZIndex = 1000,
+    }, gui)
 
-        if minimized then
-            sidebar.Visible = false
-            content.Visible = false
-            searchHolder.Visible = false
-            bell.Visible = false
-            minimize.Text = "+"
+    Corner(miniButton, 999)
+    local miniStroke = Stroke(miniButton, T.Accent, 2, 0)
 
-            Tween(main,0.2,{
-                Size = UDim2.new(originalSize.X.Scale,originalSize.X.Offset,0,76)
-            })
-        else
-            sidebar.Visible = true
-            content.Visible = true
-            searchHolder.Visible = true
-            bell.Visible = true
-            minimize.Text = "–"
+    -- Extra inner circle to make it visibly different from the old minimized header.
+    local miniInner = New("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(46, 46),
+        BackgroundColor3 = T.Background2,
+        BorderSizePixel = 0,
+        ZIndex = 999,
+    }, miniButton)
+    Corner(miniInner, 999)
+    Stroke(miniInner, T.Accent2, 1, 0.15)
 
-            Tween(main,0.2,{Size = originalSize})
+    -- Keep the button text above the inner circle.
+    miniButton.TextTransparency = 1
+
+    local miniText = New("TextLabel", {
+        Size = UDim2.fromScale(1, 1),
+        BackgroundTransparency = 1,
+        Text = options.IconText or "DH",
+        Font = FONT.Black,
+        TextSize = 15,
+        TextColor3 = T.Text,
+        ZIndex = 1001,
+    }, miniButton)
+
+    BindTheme(function(theme)
+        if miniButton.Parent then
+            miniButton.BackgroundColor3 = theme.Accent3
+            miniStroke.Color = theme.Accent
+            miniInner.BackgroundColor3 = theme.Background2
+            miniText.TextColor3 = theme.Text
         end
     end)
 
+    local function removeBlur()
+        if blur and blur.Parent then
+            blur.Enabled = false
+        end
+    end
+
+    local function restoreBlur()
+        if blur and blur.Parent and options.Blur ~= false then
+            blur.Enabled = true
+        end
+    end
+
+    local function minimizeWindow()
+        if minimized or Window.Destroyed then return end
+        minimized = true
+
+        -- Important: remove the blur BEFORE hiding the window.
+        removeBlur()
+
+        notificationPanel.Visible = false
+        panelOpen = false
+
+        -- Completely hide the old/full UI.
+        main.Visible = false
+        overlay.Visible = false
+
+        -- Show only the circular restore button.
+        miniButton.Visible = true
+        miniButton.Size = UDim2.fromOffset(42, 42)
+        Tween(
+            miniButton,
+            0.18,
+            {Size = UDim2.fromOffset(60, 60)},
+            Enum.EasingStyle.Back
+        )
+    end
+
+    local function restoreWindow()
+        if not minimized or Window.Destroyed then return end
+        minimized = false
+
+        miniButton.Visible = false
+        main.Visible = true
+        overlay.Visible = true
+        restoreBlur()
+
+        -- Restore animation without changing the window's saved dimensions.
+        local normalPosition = main.Position
+        main.BackgroundTransparency = 1
+        overlay.BackgroundTransparency = 1
+
+        Tween(overlay, 0.15, {
+            BackgroundTransparency = 0.38
+        })
+
+        Tween(main, 0.18, {
+            BackgroundTransparency = 0
+        }, Enum.EasingStyle.Quad)
+    end
+
+    minimize.MouseButton1Click:Connect(minimizeWindow)
+    miniButton.MouseButton1Click:Connect(restoreWindow)
+
     close.MouseButton1Click:Connect(function()
+        miniButton.Visible = false
+        removeBlur()
         Window:Destroy()
     end)
 
