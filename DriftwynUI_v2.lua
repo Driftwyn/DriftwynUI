@@ -145,6 +145,24 @@ local function GetGlyph(name, fallback)
     return Glyphs[string.lower(name)] or fallback or "◆"
 end
 
+local function ResolveIconContent(icon)
+    -- Decal/Creator Store IDs often do not render directly in ImageLabel on executors.
+    -- rbxthumb resolves the supplied asset ID to a usable thumbnail image.
+    if type(icon) == "number" then
+        return "rbxthumb://type=Asset&id=" .. tostring(icon) .. "&w=150&h=150"
+    end
+
+    if type(icon) == "string" then
+        local id = icon:match("^rbxassetid://(%d+)$")
+        if id then
+            return "rbxthumb://type=Asset&id=" .. id .. "&w=150&h=150"
+        end
+        return icon
+    end
+
+    return ""
+end
+
 local function MakeIcon(parent, icon, size, color, glyphFallback)
     size = size or 18
     color = color or Color3.new(1, 1, 1)
@@ -153,8 +171,9 @@ local function MakeIcon(parent, icon, size, color, glyphFallback)
         local image = New("ImageLabel", {
             BackgroundTransparency = 1,
             Size = UDim2.fromOffset(size, size),
-            Image = type(icon) == "number" and ("rbxassetid://" .. tostring(icon)) or icon,
+            Image = ResolveIconContent(icon),
             ImageColor3 = color,
+            ImageTransparency = 0,
             ScaleType = Enum.ScaleType.Fit,
             Parent = parent
         })
@@ -1211,7 +1230,7 @@ function DriftwynUI:CreateWindow(config)
                         or string.find(string.lower(rowInfo.Name), query, 1, true)
                         or string.find(string.lower(rowInfo.Description or ""), query, 1, true)
                     rowInfo.Frame.Visible = hit
-                    if hit then visibleCount += 1 end
+                    if hit then visibleCount = visibleCount + 1 end
                 end
                 section.Root.Visible = (query == "") or visibleCount > 0
             end
