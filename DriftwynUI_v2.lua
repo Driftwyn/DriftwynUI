@@ -2,8 +2,8 @@
 
 
 --[[
-    DRIFTWYN UI LIBRARY v4.0
-    Modern glassy rebuild with smoother motion, refined spacing, and icon branding.
+    DRIFTWYN UI LIBRARY v5.0 NEON
+    Dark neon-red premium rebuild inspired by the Driftwyn Hub visual identity.
 
     Preserved core API:
       DriftwynUI:GetThemes()
@@ -59,21 +59,21 @@ local FONT = {
 
 local THEMES = {
     Driftwyn = {
-        Background = Color3.fromRGB(10, 11, 14),
-        Sidebar = Color3.fromRGB(13, 14, 18),
-        Surface = Color3.fromRGB(17, 18, 23),
-        Surface2 = Color3.fromRGB(21, 22, 28),
-        Surface3 = Color3.fromRGB(25, 26, 33),
-        Border = Color3.fromRGB(43, 45, 55),
-        BorderSoft = Color3.fromRGB(31, 33, 41),
-        Accent = Color3.fromRGB(225, 44, 62),
-        AccentDark = Color3.fromRGB(148, 24, 39),
-        Text = Color3.fromRGB(242, 243, 247),
-        TextMuted = Color3.fromRGB(154, 158, 171),
-        TextDim = Color3.fromRGB(103, 107, 120),
-        Success = Color3.fromRGB(79, 205, 126),
-        Warning = Color3.fromRGB(236, 184, 72),
-        Danger = Color3.fromRGB(230, 73, 84),
+        Background = Color3.fromRGB(5, 6, 8),
+        Sidebar = Color3.fromRGB(7, 8, 11),
+        Surface = Color3.fromRGB(10, 11, 15),
+        Surface2 = Color3.fromRGB(14, 15, 20),
+        Surface3 = Color3.fromRGB(20, 21, 27),
+        Border = Color3.fromRGB(72, 26, 33),
+        BorderSoft = Color3.fromRGB(38, 24, 28),
+        Accent = Color3.fromRGB(244, 45, 65),
+        AccentDark = Color3.fromRGB(135, 17, 31),
+        Text = Color3.fromRGB(247, 247, 250),
+        TextMuted = Color3.fromRGB(172, 173, 183),
+        TextDim = Color3.fromRGB(105, 107, 119),
+        Success = Color3.fromRGB(74, 211, 128),
+        Warning = Color3.fromRGB(241, 186, 67),
+        Danger = Color3.fromRGB(244, 45, 65),
     },
 
     Midnight = {
@@ -453,7 +453,7 @@ function DriftwynUI:CreateWindow(options)
     local T = Window.Theme
 
     local gui = New("ScreenGui", {
-        Name = options.Name or "DriftwynUI_v4",
+        Name = options.Name or "DriftwynUI_v5",
         ResetOnSpawn = false,
         IgnoreGuiInset = true,
         ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
@@ -471,7 +471,7 @@ function DriftwynUI:CreateWindow(options)
     local blur
     if options.Blur == true then
         blur = New("BlurEffect", {
-            Name = "DriftwynUI_v4_Blur",
+            Name = "DriftwynUI_v5_Blur",
             Size = options.BlurSize or 8,
             Enabled = true,
         }, Lighting)
@@ -480,14 +480,36 @@ function DriftwynUI:CreateWindow(options)
     local main = New("Frame", {
         AnchorPoint = Vector2.new(0.5, 0.5),
         Position = UDim2.fromScale(0.5, 0.5),
-        Size = options.Size or UDim2.fromOffset(900, 580),
+        Size = options.Size or UDim2.fromOffset(980, 620),
         BackgroundColor3 = T.Background,
         BorderSizePixel = 0,
         ClipsDescendants = true,
         ZIndex = 2,
     }, gui)
-    Corner(main, 20)
-    local mainStroke = Stroke(main, T.Border, 1, 0.05)
+    Corner(main, 22)
+    local mainStroke = Stroke(main, T.Accent, 1.4, 0.12)
+
+    local outerGlow = New("Frame", {
+        AnchorPoint = Vector2.new(0.5,0.5),
+        Position = UDim2.fromScale(0.5,0.5),
+        Size = UDim2.new(1,-2,1,-2),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 2,
+    }, main)
+    Corner(outerGlow, 22)
+    local outerGlowStroke = Stroke(outerGlow, T.Accent, 5, 0.84)
+
+    local innerGlow = New("Frame", {
+        AnchorPoint = Vector2.new(0.5,0.5),
+        Position = UDim2.fromScale(0.5,0.5),
+        Size = UDim2.new(1,-10,1,-10),
+        BackgroundTransparency = 1,
+        BorderSizePixel = 0,
+        ZIndex = 2,
+    }, main)
+    Corner(innerGlow, 18)
+    local innerGlowStroke = Stroke(innerGlow, T.Accent, 1, 0.72)
 
     local shadow = New("ImageLabel", {
         AnchorPoint = Vector2.new(0.5, 0.5),
@@ -503,7 +525,7 @@ function DriftwynUI:CreateWindow(options)
     }, main)
 
     local header = New("Frame", {
-        Size = UDim2.new(1, 0, 0, 72),
+        Size = UDim2.new(1, 0, 0, 82),
         BackgroundColor3 = T.Background,
         BorderSizePixel = 0,
         ZIndex = 4,
@@ -520,28 +542,28 @@ function DriftwynUI:CreateWindow(options)
     local divider = New("Frame", {
         AnchorPoint = Vector2.new(0,1),
         Position = UDim2.new(0,0,1,0),
-        Size = UDim2.new(1,0,0,1),
-        BackgroundColor3 = T.BorderSoft,
+        Size = UDim2.new(1,0,0,2),
+        BackgroundColor3 = T.Accent,
         BorderSizePixel = 0,
         ZIndex = 5,
     }, header)
 
-    local iconAsset = tostring(options.Icon or "rbxassetid://0")
+    local iconAsset = tostring(options.Icon or "rbxassetid://102915977367334")
     if not iconAsset:find("rbxassetid://", 1, true) then
         iconAsset = "rbxassetid://" .. iconAsset
     end
 
     local brandDot = New("ImageLabel", {
-        Position = UDim2.fromOffset(18, 14),
-        Size = UDim2.fromOffset(44, 44),
+        Position = UDim2.fromOffset(20, 10),
+        Size = UDim2.fromOffset(62, 62),
         BackgroundColor3 = T.Surface2,
         BorderSizePixel = 0,
         Image = iconAsset,
         ScaleType = Enum.ScaleType.Crop,
         ZIndex = 6,
     }, header)
-    Corner(brandDot, 12)
-    local brandStroke = Stroke(brandDot, T.Accent, 1, 0.18)
+    Corner(brandDot, 18)
+    local brandStroke = Stroke(brandDot, T.Accent, 1.5, 0.05)
 
     local brandGlow = New("Frame", {
         AnchorPoint = Vector2.new(0.5,0.5),
@@ -555,19 +577,19 @@ function DriftwynUI:CreateWindow(options)
     Corner(brandGlow, 14)
 
     local title = New("TextLabel", {
-        Position = UDim2.fromOffset(74, 15),
-        Size = UDim2.fromOffset(300, 24),
+        Position = UDim2.fromOffset(96, 18),
+        Size = UDim2.fromOffset(360, 26),
         BackgroundTransparency = 1,
         Text = options.Title or "Driftwyn",
         Font = FONT.Bold,
-        TextSize = 18,
+        TextSize = 21,
         TextColor3 = T.Text,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 6,
     }, header)
 
     local subtitle = New("TextLabel", {
-        Position = UDim2.fromOffset(74, 39),
+        Position = UDim2.fromOffset(96, 45),
         Size = UDim2.fromOffset(330, 18),
         BackgroundTransparency = 1,
         Text = options.Subtitle or "Modern interface",
@@ -580,7 +602,7 @@ function DriftwynUI:CreateWindow(options)
 
     local windowButtons = New("Frame", {
         AnchorPoint = Vector2.new(1,0),
-        Position = UDim2.new(1,-16,0,18),
+        Position = UDim2.new(1,-18,0,20),
         Size = UDim2.fromOffset(86, 36),
         BackgroundTransparency = 1,
         ZIndex = 6,
@@ -590,7 +612,7 @@ function DriftwynUI:CreateWindow(options)
     wbList.HorizontalAlignment = Enum.HorizontalAlignment.Right
 
     local minimize = New("TextButton", {
-        Size = UDim2.fromOffset(36,36),
+        Size = UDim2.fromOffset(42,42),
         BackgroundColor3 = T.Surface,
         BorderSizePixel = 0,
         Text = "–",
@@ -600,11 +622,11 @@ function DriftwynUI:CreateWindow(options)
         AutoButtonColor = false,
         ZIndex = 7,
     }, windowButtons)
-    Corner(minimize, 10)
+    Corner(minimize, 13)
     local minStroke = Stroke(minimize, T.BorderSoft, 1, 0.15)
 
     local close = New("TextButton", {
-        Size = UDim2.fromOffset(36,36),
+        Size = UDim2.fromOffset(42,42),
         BackgroundColor3 = T.Surface,
         BorderSizePixel = 0,
         Text = "×",
@@ -614,12 +636,28 @@ function DriftwynUI:CreateWindow(options)
         AutoButtonColor = false,
         ZIndex = 7,
     }, windowButtons)
-    Corner(close, 10)
+    Corner(close, 13)
     local closeStroke = Stroke(close, T.BorderSoft, 1, 0.15)
 
+    close.MouseEnter:Connect(function()
+        Tween(close,0.14,{BackgroundColor3 = T.AccentDark, TextColor3 = T.Text})
+        Tween(closeStroke,0.14,{Color = T.Accent, Transparency = 0.05})
+    end)
+    close.MouseLeave:Connect(function()
+        Tween(close,0.14,{BackgroundColor3 = T.Surface, TextColor3 = T.TextMuted})
+        Tween(closeStroke,0.14,{Color = T.BorderSoft, Transparency = 0.15})
+    end)
+
+    minimize.MouseEnter:Connect(function()
+        Tween(minimize,0.14,{BackgroundColor3 = T.Surface3, TextColor3 = T.Text})
+    end)
+    minimize.MouseLeave:Connect(function()
+        Tween(minimize,0.14,{BackgroundColor3 = T.Surface, TextColor3 = T.TextMuted})
+    end)
+
     local sidebar = New("Frame", {
-        Position = UDim2.fromOffset(0,72),
-        Size = UDim2.new(0,210,1,-72),
+        Position = UDim2.fromOffset(0,82),
+        Size = UDim2.new(0,250,1,-82),
         BackgroundColor3 = T.Sidebar,
         BorderSizePixel = 0,
         ZIndex = 3,
@@ -635,18 +673,18 @@ function DriftwynUI:CreateWindow(options)
     }, sidebar)
 
     local searchHolder = New("Frame", {
-        Position = UDim2.fromOffset(14,14),
-        Size = UDim2.new(1,-28,0,38),
+        Position = UDim2.fromOffset(16,18),
+        Size = UDim2.new(1,-32,0,46),
         BackgroundColor3 = T.Surface,
         BorderSizePixel = 0,
         ZIndex = 5,
     }, sidebar)
-    Corner(searchHolder, 12)
+    Corner(searchHolder, 14)
     local searchStroke = Stroke(searchHolder, T.BorderSoft, 1, 0.2)
 
     local searchIcon = New("TextLabel", {
-        Position = UDim2.fromOffset(12,0),
-        Size = UDim2.fromOffset(24,38),
+        Position = UDim2.fromOffset(14,0),
+        Size = UDim2.fromOffset(28,46),
         BackgroundTransparency = 1,
         Text = "⌕",
         Font = FONT.Bold,
@@ -656,7 +694,7 @@ function DriftwynUI:CreateWindow(options)
     }, searchHolder)
 
     local searchBox = New("TextBox", {
-        Position = UDim2.fromOffset(38,0),
+        Position = UDim2.fromOffset(45,0),
         Size = UDim2.new(1,-48,1,0),
         BackgroundTransparency = 1,
         Text = "",
@@ -671,8 +709,8 @@ function DriftwynUI:CreateWindow(options)
     }, searchHolder)
 
     local tabScroll = New("ScrollingFrame", {
-        Position = UDim2.fromOffset(10,64),
-        Size = UDim2.new(1,-20,1,-108),
+        Position = UDim2.fromOffset(12,80),
+        Size = UDim2.new(1,-24,1,-154),
         BackgroundTransparency = 1,
         BorderSizePixel = 0,
         CanvasSize = UDim2.new(),
@@ -682,22 +720,55 @@ function DriftwynUI:CreateWindow(options)
     }, sidebar)
     local tabList = List(tabScroll, 6)
 
+    local sidebarFooter = New("Frame", {
+        AnchorPoint = Vector2.new(0,1),
+        Position = UDim2.new(0,14,1,-12),
+        Size = UDim2.new(1,-28,0,62),
+        BackgroundColor3 = T.Surface,
+        BackgroundTransparency = 0.16,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+    }, sidebar)
+    Corner(sidebarFooter, 15)
+    local footerStroke = Stroke(sidebarFooter,T.BorderSoft,1,0.22)
+
+    local footerDot = New("Frame", {
+        Position = UDim2.fromOffset(13,18),
+        Size = UDim2.fromOffset(9,9),
+        BackgroundColor3 = T.Accent,
+        BorderSizePixel = 0,
+        ZIndex = 6,
+    }, sidebarFooter)
+    Corner(footerDot,99)
+
+    local footerTitle = New("TextLabel", {
+        Position = UDim2.fromOffset(34,8),
+        Size = UDim2.new(1,-44,0,20),
+        BackgroundTransparency = 1,
+        Text = "DRIFTWYN HUB",
+        Font = FONT.Bold,
+        TextSize = 11,
+        TextColor3 = T.Accent,
+        TextXAlignment = Enum.TextXAlignment.Left,
+        ZIndex = 6,
+    }, sidebarFooter)
+
     local versionLabel = New("TextLabel", {
         AnchorPoint = Vector2.new(0,1),
-        Position = UDim2.new(0,16,1,-14),
-        Size = UDim2.new(1,-32,0,20),
+        Position = UDim2.fromOffset(34,29),
+        Size = UDim2.new(1,-44,0,18),
         BackgroundTransparency = 1,
-        Text = options.Version or "v4.0",
+        Text = options.Version or "v5.0",
         Font = FONT.Medium,
         TextSize = 11,
         TextColor3 = T.TextDim,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 5,
-    }, sidebar)
+    }, sidebarFooter)
 
     local content = New("Frame", {
-        Position = UDim2.fromOffset(210,72),
-        Size = UDim2.new(1,-210,1,-72),
+        Position = UDim2.fromOffset(250,82),
+        Size = UDim2.new(1,-250,1,-82),
         BackgroundTransparency = 1,
         ZIndex = 3,
     }, main)
@@ -709,19 +780,30 @@ function DriftwynUI:CreateWindow(options)
         ZIndex = 4,
     }, content)
 
+    local pageDiamond = New("Frame", {
+        Position = UDim2.fromOffset(0,7),
+        Size = UDim2.fromOffset(12,12),
+        Rotation = 45,
+        BackgroundColor3 = T.Accent,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+    }, pageHeader)
+    Corner(pageDiamond,2)
+
     local pageTitle = New("TextLabel", {
-        Size = UDim2.new(1,0,0,25),
+        Position = UDim2.fromOffset(26,0),
+        Size = UDim2.new(1,-26,0,28),
         BackgroundTransparency = 1,
         Text = "Home",
         Font = FONT.Bold,
-        TextSize = 20,
+        TextSize = 24,
         TextColor3 = T.Text,
         TextXAlignment = Enum.TextXAlignment.Left,
         ZIndex = 5,
     }, pageHeader)
 
     local pageSubtitle = New("TextLabel", {
-        Position = UDim2.fromOffset(0,27),
+        Position = UDim2.fromOffset(26,31),
         Size = UDim2.new(1,0,0,18),
         BackgroundTransparency = 1,
         Text = "Choose a section from the sidebar",
@@ -732,9 +814,19 @@ function DriftwynUI:CreateWindow(options)
         ZIndex = 5,
     }, pageHeader)
 
+    local pageAccentLine = New("Frame", {
+        Position = UDim2.fromOffset(26,61),
+        Size = UDim2.fromOffset(156,2),
+        BackgroundColor3 = T.Accent,
+        BorderSizePixel = 0,
+        ZIndex = 5,
+    }, content)
+    Corner(pageAccentLine,99)
+    local pageAccentGlow = Stroke(pageAccentLine,T.Accent,3,0.78)
+
     local pageHost = New("Frame", {
-        Position = UDim2.fromOffset(16,72),
-        Size = UDim2.new(1,-32,1,-84),
+        Position = UDim2.fromOffset(18,88),
+        Size = UDim2.new(1,-36,1,-104),
         BackgroundTransparency = 1,
         ZIndex = 4,
     }, content)
@@ -785,9 +877,11 @@ function DriftwynUI:CreateWindow(options)
     bindTheme(function(theme)
         if not main.Parent then return end
         main.BackgroundColor3 = theme.Background
-        mainStroke.Color = theme.Border
+        mainStroke.Color = theme.Accent
+        outerGlowStroke.Color = theme.Accent
+        innerGlowStroke.Color = theme.Accent
         header.BackgroundColor3 = theme.Background
-        divider.BackgroundColor3 = theme.BorderSoft
+        divider.BackgroundColor3 = theme.Accent
         brandDot.BackgroundColor3 = theme.Surface2
         brandStroke.Color = theme.Accent
         brandGlow.BackgroundColor3 = theme.Accent
@@ -802,6 +896,13 @@ function DriftwynUI:CreateWindow(options)
         searchBox.TextColor3 = theme.Text
         tabScroll.ScrollBarImageColor3 = theme.Border
         versionLabel.TextColor3 = theme.TextDim
+        sidebarFooter.BackgroundColor3 = theme.Surface
+        footerStroke.Color = theme.BorderSoft
+        footerDot.BackgroundColor3 = theme.Accent
+        footerTitle.TextColor3 = theme.Accent
+        pageDiamond.BackgroundColor3 = theme.Accent
+        pageAccentLine.BackgroundColor3 = theme.Accent
+        pageAccentGlow.Color = theme.Accent
         pageTitle.TextColor3 = theme.Text
         pageSubtitle.TextColor3 = theme.TextMuted
         minimize.BackgroundColor3 = theme.Surface
@@ -867,7 +968,7 @@ function DriftwynUI:CreateWindow(options)
             BorderSizePixel = 0,
             ZIndex = 51,
         }, notifHost)
-        Corner(card, 15)
+        Corner(card, 18)
         local cStroke = Stroke(card, T.Border, 1, 0.15)
 
         local accent = New("Frame", {
@@ -1047,6 +1148,16 @@ function DriftwynUI:CreateWindow(options)
     end
     searchBox:GetPropertyChangedSignal("Text"):Connect(applySearch)
 
+    searchBox.Focused:Connect(function()
+        Tween(searchHolder,0.16,{BackgroundColor3 = T.Surface2})
+        Tween(searchStroke,0.16,{Color = T.Accent, Transparency = 0.08})
+    end)
+
+    searchBox.FocusLost:Connect(function()
+        Tween(searchHolder,0.16,{BackgroundColor3 = T.Surface})
+        Tween(searchStroke,0.16,{Color = T.BorderSoft, Transparency = 0.2})
+    end)
+
     function Window:AddTab(data)
         data = data or {}
 
@@ -1057,7 +1168,7 @@ function DriftwynUI:CreateWindow(options)
         }
 
         local tabButton = New("TextButton", {
-            Size = UDim2.new(1,0,0,42),
+            Size = UDim2.new(1,0,0,54),
             BackgroundColor3 = T.Sidebar,
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
@@ -1065,11 +1176,11 @@ function DriftwynUI:CreateWindow(options)
             AutoButtonColor = false,
             ZIndex = 5,
         }, tabScroll)
-        Corner(tabButton, 12)
+        Corner(tabButton, 15)
 
         local activeBar = New("Frame", {
-            Position = UDim2.fromOffset(0,8),
-            Size = UDim2.fromOffset(3,26),
+            Position = UDim2.fromOffset(0,10),
+            Size = UDim2.fromOffset(4,34),
             BackgroundColor3 = T.Accent,
             BackgroundTransparency = 1,
             BorderSizePixel = 0,
@@ -1078,8 +1189,8 @@ function DriftwynUI:CreateWindow(options)
         Corner(activeBar, 99)
 
         local tabIcon = New("TextLabel", {
-            Position = UDim2.fromOffset(12,0),
-            Size = UDim2.fromOffset(30,42),
+            Position = UDim2.fromOffset(16,0),
+            Size = UDim2.fromOffset(30,54),
             BackgroundTransparency = 1,
             Text = Tab.Icon,
             Font = FONT.Bold,
@@ -1089,8 +1200,8 @@ function DriftwynUI:CreateWindow(options)
         }, tabButton)
 
         local tabLabel = New("TextLabel", {
-            Position = UDim2.fromOffset(44,0),
-            Size = UDim2.new(1,-54,1,0),
+            Position = UDim2.fromOffset(52,0),
+            Size = UDim2.new(1,-64,1,0),
             BackgroundTransparency = 1,
             Text = Tab.Name,
             Font = FONT.Medium,
@@ -1121,9 +1232,14 @@ function DriftwynUI:CreateWindow(options)
             activeBar.BackgroundColor3 = theme.Accent
             page.ScrollBarImageColor3 = theme.Border
             if Window.ActiveTab == Tab then
-                tabButton.BackgroundTransparency = 0
+                tabButton.BackgroundTransparency = 0.08
+                tabButton.BackgroundColor3 = Color3.new(
+                    theme.Accent.R * 0.20,
+                    theme.Accent.G * 0.20,
+                    theme.Accent.B * 0.20
+                )
                 activeBar.BackgroundTransparency = 0
-                tabIcon.TextColor3 = theme.Text
+                tabIcon.TextColor3 = theme.Accent
                 tabLabel.TextColor3 = theme.Text
             else
                 tabButton.BackgroundTransparency = 1
@@ -1191,7 +1307,7 @@ function DriftwynUI:CreateWindow(options)
                 ZIndex = 6,
             }, page)
             Corner(card, 15)
-            local cardStroke = Stroke(card, T.BorderSoft, 1, 0.15)
+            local cardStroke = Stroke(card, T.Accent, 1, 0.58)
 
             local sectionHeader = New("Frame", {
                 Size = UDim2.new(1,0,0,48),
@@ -1199,9 +1315,30 @@ function DriftwynUI:CreateWindow(options)
                 ZIndex = 7,
             }, card)
 
+            local sectionIcon = New("Frame", {
+                Position = UDim2.fromOffset(16,10),
+                Size = UDim2.fromOffset(30,30),
+                BackgroundColor3 = T.AccentDark,
+                BackgroundTransparency = 0.30,
+                BorderSizePixel = 0,
+                ZIndex = 8,
+            }, sectionHeader)
+            Corner(sectionIcon,99)
+            local sectionIconStroke = Stroke(sectionIcon,T.Accent,1,0.30)
+
+            local sectionGlyph = New("TextLabel", {
+                Size = UDim2.fromScale(1,1),
+                BackgroundTransparency = 1,
+                Text = "◆",
+                Font = FONT.Bold,
+                TextSize = 11,
+                TextColor3 = T.Accent,
+                ZIndex = 9,
+            }, sectionIcon)
+
             local sectionTitle = New("TextLabel", {
-                Position = UDim2.fromOffset(16,9),
-                Size = UDim2.new(1,-32,0,20),
+                Position = UDim2.fromOffset(56,7),
+                Size = UDim2.new(1,-72,0,22),
                 BackgroundTransparency = 1,
                 Text = Section.Name,
                 Font = FONT.Bold,
@@ -1212,7 +1349,7 @@ function DriftwynUI:CreateWindow(options)
             }, sectionHeader)
 
             local sectionDesc = New("TextLabel", {
-                Position = UDim2.fromOffset(16,28),
+                Position = UDim2.fromOffset(56,29),
                 Size = UDim2.new(1,-32,0,16),
                 BackgroundTransparency = 1,
                 Text = sectionData.Description or "",
@@ -1252,27 +1389,44 @@ function DriftwynUI:CreateWindow(options)
             end
 
             local function makeRow(height)
-                local row = New("Frame", {
-                    Size = UDim2.new(1,-20,0,height or 54),
+                local holder = New("Frame", {
+                    Size = UDim2.new(1,-20,0,(height or 62) + 8),
                     BackgroundTransparency = 1,
                     BorderSizePixel = 0,
                     ZIndex = 8,
                 }, controls)
 
-                local separator = New("Frame", {
-                    AnchorPoint = Vector2.new(0,1),
-                    Position = UDim2.new(0,6,1,0),
-                    Size = UDim2.new(1,-12,0,1),
-                    BackgroundColor3 = T.BorderSoft,
-                    BackgroundTransparency = 0.3,
+                local row = New("Frame", {
+                    Position = UDim2.fromOffset(0,4),
+                    Size = UDim2.new(1,0,0,height or 62),
+                    BackgroundColor3 = T.Surface2,
+                    BackgroundTransparency = 0.16,
                     BorderSizePixel = 0,
                     ZIndex = 8,
+                }, holder)
+                Corner(row,14)
+                local rowStroke = Stroke(row,T.BorderSoft,1,0.25)
+
+                local redEdge = New("Frame", {
+                    Position = UDim2.fromOffset(0,10),
+                    Size = UDim2.fromOffset(2,math.max((height or 62)-20,12)),
+                    BackgroundColor3 = T.Accent,
+                    BackgroundTransparency = 0.58,
+                    BorderSizePixel = 0,
+                    ZIndex = 9,
                 }, row)
+                Corner(redEdge,99)
 
                 bindTheme(function(theme)
-                    if separator.Parent then
-                        separator.BackgroundColor3 = theme.BorderSoft
+                    if row.Parent then
+                        row.BackgroundColor3 = theme.Surface2
+                        rowStroke.Color = theme.BorderSoft
+                        redEdge.BackgroundColor3 = theme.Accent
                     end
+                end)
+
+                row:GetPropertyChangedSignal("Size"):Connect(function()
+                    holder.Size = UDim2.new(1,-20,0,row.Size.Y.Offset + 8)
                 end)
 
                 return row
@@ -1280,7 +1434,7 @@ function DriftwynUI:CreateWindow(options)
 
             local function addTexts(row, name, description, rightWidth)
                 local titleLabel = New("TextLabel", {
-                    Position = UDim2.fromOffset(8,8),
+                    Position = UDim2.fromOffset(18,10),
                     Size = UDim2.new(1,-(rightWidth or 120),0,20),
                     BackgroundTransparency = 1,
                     Text = name or "Control",
@@ -1292,7 +1446,7 @@ function DriftwynUI:CreateWindow(options)
                 }, row)
 
                 local descLabel = New("TextLabel", {
-                    Position = UDim2.fromOffset(8,29),
+                    Position = UDim2.fromOffset(18,31),
                     Size = UDim2.new(1,-(rightWidth or 120),0,17),
                     BackgroundTransparency = 1,
                     Text = description or "",
@@ -1323,7 +1477,7 @@ function DriftwynUI:CreateWindow(options)
                     AnchorPoint = Vector2.new(1,0.5),
                     Position = UDim2.new(1,-8,0.5,0),
                     Size = UDim2.fromOffset(112,34),
-                    BackgroundColor3 = T.Surface2,
+                    BackgroundColor3 = T.AccentDark,
                     BorderSizePixel = 0,
                     Text = data.Text or "Run",
                     Font = FONT.Medium,
@@ -1333,7 +1487,14 @@ function DriftwynUI:CreateWindow(options)
                     ZIndex = 10,
                 }, row)
                 Corner(btn, 9)
-                local bStroke = Stroke(btn, T.Border, 1, 0.15)
+                local bStroke = Stroke(btn, T.Accent, 1, 0.08)
+                local btnGradient = New("UIGradient", {
+                    Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0,T.Accent),
+                        ColorSequenceKeypoint.new(1,T.AccentDark),
+                    }),
+                    Rotation = 0,
+                }, btn)
 
                 bindTheme(function(theme)
                     if btn.Parent then
@@ -1369,7 +1530,7 @@ function DriftwynUI:CreateWindow(options)
                 local toggle = New("TextButton", {
                     AnchorPoint = Vector2.new(1,0.5),
                     Position = UDim2.new(1,-8,0.5,0),
-                    Size = UDim2.fromOffset(48,26),
+                    Size = UDim2.fromOffset(54,28),
                     BackgroundColor3 = value and T.Accent or T.Surface3,
                     BorderSizePixel = 0,
                     Text = "",
@@ -1377,10 +1538,11 @@ function DriftwynUI:CreateWindow(options)
                     ZIndex = 10,
                 }, row)
                 Corner(toggle, 99)
+                local toggleStroke = Stroke(toggle,value and T.Accent or T.BorderSoft,1,0.22)
 
                 local knob = New("Frame", {
                     AnchorPoint = Vector2.new(0.5,0.5),
-                    Position = value and UDim2.new(1,-13,0.5,0) or UDim2.new(0,13,0.5,0),
+                    Position = value and UDim2.new(1,-14,0.5,0) or UDim2.new(0,14,0.5,0),
                     Size = UDim2.fromOffset(20,20),
                     BackgroundColor3 = T.Text,
                     BorderSizePixel = 0,
@@ -1392,8 +1554,9 @@ function DriftwynUI:CreateWindow(options)
 
                 function Control:Set(v)
                     value = v == true
-                    Tween(toggle,0.16,{BackgroundColor3 = value and T.Accent or T.Surface3})
-                    Tween(knob,0.16,{Position = value and UDim2.new(1,-13,0.5,0) or UDim2.new(0,13,0.5,0)})
+                    Tween(toggle,0.18,{BackgroundColor3 = value and T.Accent or T.Surface3})
+                    Tween(toggleStroke,0.18,{Color = value and T.Accent or T.BorderSoft, Transparency = value and 0.02 or 0.22})
+                    Tween(knob,0.18,{Position = value and UDim2.new(1,-14,0.5,0) or UDim2.new(0,14,0.5,0)})
                     SafeCallback(data.Callback, value)
                 end
 
@@ -1442,8 +1605,8 @@ function DriftwynUI:CreateWindow(options)
                 }, row)
 
                 local bar = New("TextButton", {
-                    Position = UDim2.fromOffset(8,52),
-                    Size = UDim2.new(1,-16,0,5),
+                    Position = UDim2.fromOffset(18,54),
+                    Size = UDim2.new(1,-36,0,7),
                     BackgroundColor3 = T.Surface3,
                     BorderSizePixel = 0,
                     Text = "",
@@ -1463,7 +1626,7 @@ function DriftwynUI:CreateWindow(options)
                 local knob = New("Frame", {
                     AnchorPoint = Vector2.new(0.5,0.5),
                     Position = UDim2.new((value-min)/(max-min),0,0.5,0),
-                    Size = UDim2.fromOffset(14,14),
+                    Size = UDim2.fromOffset(17,17),
                     BackgroundColor3 = T.Text,
                     BorderSizePixel = 0,
                     ZIndex = 12,
@@ -1559,7 +1722,7 @@ function DriftwynUI:CreateWindow(options)
                     ZIndex = 10,
                 }, row)
                 Corner(selector, 9)
-                local sStroke = Stroke(selector, T.Border, 1, 0.15)
+                local sStroke = Stroke(selector, T.Accent, 1, 0.58)
 
                 local selectedLabel = New("TextLabel", {
                     Position = UDim2.fromOffset(10,0),
@@ -1872,7 +2035,7 @@ function DriftwynUI:CreateWindow(options)
                     ZIndex = 10,
                 }, row)
                 Corner(boxHolder,9)
-                local bStroke = Stroke(boxHolder,T.Border,1,0.15)
+                local bStroke = Stroke(boxHolder,T.Accent,1,0.62)
 
                 local box = New("TextBox", {
                     Position = UDim2.fromOffset(10,0),
@@ -2351,7 +2514,7 @@ function DriftwynUI:CreateWindow(options)
     overlay.BackgroundTransparency = 1
 
     Tween(overlay,0.18,{BackgroundTransparency = 0.55})
-    Tween(main,0.22,{Size = finalSize, BackgroundTransparency = 0},Enum.EasingStyle.Back)
+    Tween(main,0.30,{Size = finalSize, BackgroundTransparency = 0},Enum.EasingStyle.Quint)
 
     Window.Gui = gui
     Window.Main = main
