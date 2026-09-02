@@ -1,5 +1,5 @@
 --[[
-    Driftwyn UI v5.5
+    Driftwyn UI v5.6
     Black / crimson Roblox UI library inspired by the supplied Driftwyn Hub mockup.
 
     Remote usage:
@@ -74,7 +74,7 @@ end
 local function Tween(obj, duration, props, style, direction)
     local t = TweenService:Create(
         obj,
-        TweenInfo.new(duration or 0.18, style or Enum.EasingStyle.Quint, direction or Enum.EasingDirection.Out),
+        TweenInfo.new(duration or 0.22, style or Enum.EasingStyle.Quint, direction or Enum.EasingDirection.Out),
         props
     )
     t:Play()
@@ -712,7 +712,7 @@ function DriftwynUI:CreateWindow(config)
         Position = UDim2.fromOffset(60, 39),
         Size = UDim2.new(1, -92, 0, 20),
         Font = Enum.Font.Gotham,
-        Text = config.Version or "v5.5",
+        Text = config.Version or "v5.6",
         TextColor3 = T().TextDim,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -1213,28 +1213,44 @@ function DriftwynUI:CreateWindow(config)
 
     local function selectTab(tab)
         for _, t in ipairs(Window.Tabs) do
-            t.Page.Visible = (t == tab)
-            t.Selected = (t == tab)
-            if t == tab then
-                Tween(t.Button, 0.17, {BackgroundTransparency = 0})
-                Tween(t.SideAccent, 0.17, {BackgroundTransparency = 0})
-                Tween(t.NameLabel, 0.17, {TextColor3 = T().Accent})
+            local selectedNow = (t == tab)
+            t.Selected = selectedNow
+
+            if selectedNow then
+                t.Page.Visible = true
+                t.Page.Position = UDim2.fromOffset(9, 0)
+
+                Tween(
+                    t.Page,
+                    0.24,
+                    {Position = UDim2.fromOffset(0, 0)},
+                    Enum.EasingStyle.Quint,
+                    Enum.EasingDirection.Out
+                )
+
+                Tween(t.Button, 0.20, {BackgroundTransparency = 0})
+                Tween(t.SideAccent, 0.20, {BackgroundTransparency = 0})
+                Tween(t.NameLabel, 0.20, {TextColor3 = T().Accent})
+
                 if t.IconObject then
                     if t.IconKind == "image" then
-                        Tween(t.IconObject, 0.17, {ImageColor3 = T().Accent})
+                        Tween(t.IconObject, 0.20, {ImageColor3 = T().Accent})
                     else
-                        Tween(t.IconObject, 0.17, {TextColor3 = T().Accent})
+                        Tween(t.IconObject, 0.20, {TextColor3 = T().Accent})
                     end
                 end
             else
-                Tween(t.Button, 0.17, {BackgroundTransparency = 1})
-                Tween(t.SideAccent, 0.17, {BackgroundTransparency = 1})
-                Tween(t.NameLabel, 0.17, {TextColor3 = T().TextDim})
+                t.Page.Visible = false
+
+                Tween(t.Button, 0.20, {BackgroundTransparency = 1})
+                Tween(t.SideAccent, 0.20, {BackgroundTransparency = 1})
+                Tween(t.NameLabel, 0.20, {TextColor3 = T().TextDim})
+
                 if t.IconObject then
                     if t.IconKind == "image" then
-                        Tween(t.IconObject, 0.17, {ImageColor3 = T().TextFaint})
+                        Tween(t.IconObject, 0.20, {ImageColor3 = T().TextFaint})
                     else
-                        Tween(t.IconObject, 0.17, {TextColor3 = T().TextFaint})
+                        Tween(t.IconObject, 0.20, {TextColor3 = T().TextFaint})
                     end
                 end
             end
@@ -1905,9 +1921,6 @@ function DriftwynUI:CreateWindow(config)
 
                     if type(default) == "table" then
                         for k, v in pairs(default) do
-                            -- Supports:
-                            -- {"Rare", "Epic"}
-                            -- {Rare = true, Epic = true}
                             if type(k) == "number" then
                                 if table.find(values, v) then
                                     selected[v] = true
@@ -1924,7 +1937,6 @@ function DriftwynUI:CreateWindow(config)
                 else
                     local default = rowData.Default
 
-                    -- Also allow Default = 2 to select values[2].
                     if type(default) == "number" and values[default] ~= nil then
                         default = values[default]
                     end
@@ -1951,6 +1963,11 @@ function DriftwynUI:CreateWindow(config)
 
                 local buttonStroke = Stroke(Button, T().Border, 1, 0.05)
 
+                local ButtonScale = New("UIScale", {
+                    Scale = 1,
+                    Parent = Button
+                })
+
                 local Arrow = New("TextLabel", {
                     AnchorPoint = Vector2.new(1, 0.5),
                     BackgroundTransparency = 1,
@@ -1965,6 +1982,7 @@ function DriftwynUI:CreateWindow(config)
                 })
 
                 local popup
+                local popupScale
                 local opened = false
 
                 local function selectedCount()
@@ -1993,7 +2011,6 @@ function DriftwynUI:CreateWindow(config)
                     if multi then
                         return copySelected()
                     end
-
                     return value
                 end
 
@@ -2022,27 +2039,97 @@ function DriftwynUI:CreateWindow(config)
 
                 local function fireCallback()
                     updateFlag()
-
                     if rowData.Callback then
                         task.spawn(rowData.Callback, getCurrentValue())
                     end
                 end
 
-                local function closePopup()
-                    opened = false
-
-                    if popup then
-                        popup:Destroy()
-                        popup = nil
+                local function closePopup(instant)
+                    if not opened and not popup then
+                        return
                     end
+
+                    opened = false
 
                     if ActiveDropdownClose == closePopup then
                         ActiveDropdownClose = nil
                     end
 
-                    Tween(Arrow, 0.15, {
-                        Rotation = 0
-                    })
+                    Tween(
+                        Arrow,
+                        instant and 0.01 or 0.18,
+                        {Rotation = 0},
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.Out
+                    )
+
+                    Tween(
+                        Button,
+                        instant and 0.01 or 0.16,
+                        {BackgroundColor3 = T().Background2}
+                    )
+
+                    Tween(
+                        buttonStroke,
+                        instant and 0.01 or 0.16,
+                        {Color = T().Border}
+                    )
+
+                    local closingPopup = popup
+                    local closingScale = popupScale
+                    popup = nil
+                    popupScale = nil
+
+                    if not closingPopup or not closingPopup.Parent then
+                        return
+                    end
+
+                    if instant then
+                        closingPopup:Destroy()
+                        return
+                    end
+
+                    local currentPosition = closingPopup.Position
+                    local currentSize = closingPopup.Size
+                    local collapseY = currentPosition.Y.Offset
+
+                    if closingPopup:GetAttribute("OpensUp") == true then
+                        collapseY = currentPosition.Y.Offset + currentSize.Y.Offset
+                    end
+
+                    Tween(
+                        closingPopup,
+                        0.18,
+                        {
+                            Position = UDim2.fromOffset(
+                                currentPosition.X.Offset,
+                                collapseY
+                            ),
+                            Size = UDim2.fromOffset(
+                                currentSize.X.Offset,
+                                0
+                            ),
+                            GroupTransparency = 1
+                        },
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.In
+                    )
+
+                    if closingScale then
+                        Tween(
+                            closingScale,
+                            0.18,
+                            {Scale = 0.975},
+                            Enum.EasingStyle.Quint,
+                            Enum.EasingDirection.In
+                        )
+                    end
+
+                    task.delay(0.19, function()
+                        if closingPopup and closingPopup.Parent then
+                            closingPopup:Destroy()
+                        end
+                    end)
                 end
 
                 local function setSingle(v, call)
@@ -2058,7 +2145,7 @@ function DriftwynUI:CreateWindow(config)
                         task.spawn(rowData.Callback, value)
                     end
 
-                    closePopup()
+                    closePopup(false)
                 end
 
                 local function setMulti(newValue, call)
@@ -2102,40 +2189,97 @@ function DriftwynUI:CreateWindow(config)
                 updateButton()
                 updateFlag()
 
+                Button.MouseEnter:Connect(function()
+                    if not opened then
+                        Tween(Button, 0.16, {
+                            BackgroundColor3 = T().Surface
+                        })
+
+                        Tween(buttonStroke, 0.16, {
+                            Color = T().BorderSoft
+                        })
+                    end
+
+                    Tween(ButtonScale, 0.16, {
+                        Scale = 1.012
+                    })
+                end)
+
+                Button.MouseLeave:Connect(function()
+                    if not opened then
+                        Tween(Button, 0.16, {
+                            BackgroundColor3 = T().Background2
+                        })
+
+                        Tween(buttonStroke, 0.16, {
+                            Color = T().Border
+                        })
+                    end
+
+                    Tween(ButtonScale, 0.16, {
+                        Scale = 1
+                    })
+                end)
+
+                Button.MouseButton1Down:Connect(function()
+                    Tween(ButtonScale, 0.09, {
+                        Scale = 0.985
+                    })
+                end)
+
+                Button.MouseButton1Up:Connect(function()
+                    Tween(ButtonScale, 0.13, {
+                        Scale = 1.012
+                    })
+                end)
+
                 Button.MouseButton1Click:Connect(function()
                     if opened then
-                        closePopup()
+                        closePopup(false)
                         return
                     end
 
-                    -- Close any other dropdown before opening this one.
                     if ActiveDropdownClose and ActiveDropdownClose ~= closePopup then
-                        ActiveDropdownClose()
+                        ActiveDropdownClose(false)
                     end
 
                     opened = true
                     ActiveDropdownClose = closePopup
 
-                    Tween(Arrow, 0.15, {
-                        Rotation = 180
+                    Tween(
+                        Arrow,
+                        0.22,
+                        {Rotation = 180},
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.Out
+                    )
+
+                    Tween(Button, 0.18, {
+                        BackgroundColor3 = T().Surface
+                    })
+
+                    Tween(buttonStroke, 0.18, {
+                        Color = T().Accent
                     })
 
                     local searchHeight = searchable and 38 or 0
                     local listHeight = math.min(#values * 30 + 8, 170)
                     local popupHeight = searchHeight + listHeight
 
-                    -- Prefer opening below the control. If there is not enough
-                    -- room on-screen, open upward instead.
                     local buttonPos = Button.AbsolutePosition
                     local buttonSize = Button.AbsoluteSize
                     local camera = workspace.CurrentCamera
-                    local viewportSize = camera and camera.ViewportSize or Vector2.new(1366, 768)
+                    local viewportSize =
+                        camera and camera.ViewportSize
+                        or Vector2.new(1366, 768)
 
                     local popupX = buttonPos.X
-                    local popupY = buttonPos.Y + buttonSize.Y + 5
+                    local popupY = buttonPos.Y + buttonSize.Y + 6
+                    local opensUp = false
 
                     if popupY + popupHeight > viewportSize.Y - 8 then
-                        popupY = buttonPos.Y - popupHeight - 5
+                        popupY = buttonPos.Y - popupHeight - 6
+                        opensUp = true
                     end
 
                     popupX = math.clamp(
@@ -2150,29 +2294,50 @@ function DriftwynUI:CreateWindow(config)
                         math.max(8, viewportSize.Y - popupHeight - 8)
                     )
 
-                    popup = New("Frame", {
+                    local collapsedY =
+                        opensUp
+                        and (popupY + popupHeight)
+                        or popupY
+
+                    popup = New("CanvasGroup", {
                         BackgroundColor3 = T().Background2,
                         BorderSizePixel = 0,
                         Position = UDim2.fromOffset(
                             popupX,
-                            popupY
+                            collapsedY
                         ),
                         Size = UDim2.fromOffset(
                             Button.AbsoluteSize.X,
-                            popupHeight
+                            0
                         ),
                         ClipsDescendants = true,
+                        GroupTransparency = 1,
                         ZIndex = 400,
                         Parent = ScreenGui
                     })
-                    Corner(popup, 8)
-                    Stroke(popup, T().Border, 1, 0)
+
+                    popup:SetAttribute("OpensUp", opensUp)
+
+                    Corner(popup, 9)
+
+                    local popupStroke = Stroke(
+                        popup,
+                        T().Border,
+                        1,
+                        0.25
+                    )
+
+                    popupScale = New("UIScale", {
+                        Scale = 0.975,
+                        Parent = popup
+                    })
 
                     local SearchInput
 
                     if searchable then
                         SearchInput = New("TextBox", {
                             BackgroundColor3 = T().Surface,
+                            BackgroundTransparency = 0.08,
                             BorderSizePixel = 0,
                             ClearTextOnFocus = false,
                             Position = UDim2.fromOffset(5, 5),
@@ -2187,8 +2352,22 @@ function DriftwynUI:CreateWindow(config)
                             ZIndex = 402,
                             Parent = popup
                         })
+
                         Padding(SearchInput, 9, 9, 0, 0)
-                        Corner(SearchInput, 6)
+                        Corner(SearchInput, 7)
+                        Stroke(SearchInput, T().BorderSoft, 1, 0.45)
+
+                        SearchInput.Focused:Connect(function()
+                            Tween(SearchInput, 0.16, {
+                                BackgroundTransparency = 0
+                            })
+                        end)
+
+                        SearchInput.FocusLost:Connect(function()
+                            Tween(SearchInput, 0.16, {
+                                BackgroundTransparency = 0.08
+                            })
+                        end)
                     end
 
                     local list = New("ScrollingFrame", {
@@ -2200,6 +2379,7 @@ function DriftwynUI:CreateWindow(config)
                         AutomaticCanvasSize = Enum.AutomaticSize.Y,
                         ScrollBarThickness = 2,
                         ScrollBarImageColor3 = T().Accent,
+                        ScrollBarImageTransparency = 0.28,
                         ZIndex = 401,
                         Parent = popup
                     })
@@ -2218,72 +2398,141 @@ function DriftwynUI:CreateWindow(config)
                         if multi then
                             return selected[v] == true
                         end
-
                         return v == value
                     end
 
-                    local function renderOption(option, v)
+                    local function renderOption(option, v, animated)
                         local active = isSelected(v)
 
-                        option.BackgroundColor3 =
-                            active and Darken(T().Accent, 0.78) or T().Surface
+                        local targetBackground =
+                            active
+                            and Darken(T().Accent, 0.78)
+                            or T().Surface
 
-                        option.BackgroundTransparency =
+                        local targetBackgroundTransparency =
                             active and 0 or 0.25
 
-                        option.TextColor3 =
+                        local targetTextColor =
                             active and T().Accent or T().TextDim
 
-                        if multi then
-                            option.Text =
-                                (active and "  ✓  " or "     ") .. tostring(v)
+                        option.Text =
+                            (active and "  ✓  " or "     ")
+                            .. tostring(v)
+
+                        if animated then
+                            Tween(option, 0.16, {
+                                BackgroundColor3 = targetBackground,
+                                BackgroundTransparency =
+                                    targetBackgroundTransparency,
+                                TextColor3 = targetTextColor
+                            })
                         else
-                            option.Text = "  " .. tostring(v)
+                            option.BackgroundColor3 = targetBackground
+                            option.BackgroundTransparency =
+                                targetBackgroundTransparency
+                            option.TextColor3 = targetTextColor
                         end
                     end
 
-                    for _, v in ipairs(values) do
+                    local function pulseOption(entry)
+                        Tween(entry.Scale, 0.08, {
+                            Scale = 0.975
+                        })
+
+                        task.delay(0.08, function()
+                            if entry.Scale and entry.Scale.Parent then
+                                Tween(entry.Scale, 0.14, {
+                                    Scale = 1
+                                })
+                            end
+                        end)
+                    end
+
+                    for index, v in ipairs(values) do
                         local option = New("TextButton", {
                             AutoButtonColor = false,
                             BackgroundColor3 = T().Surface,
-                            BackgroundTransparency = 0.25,
+                            BackgroundTransparency = 1,
                             BorderSizePixel = 0,
                             Size = UDim2.new(1, 0, 0, 28),
                             Font = Enum.Font.Gotham,
                             Text = "",
                             TextColor3 = T().TextDim,
+                            TextTransparency = 1,
                             TextSize = 11,
                             TextXAlignment = Enum.TextXAlignment.Left,
                             ZIndex = 402,
+                            LayoutOrder = index,
                             Parent = list
                         })
 
                         Corner(option, 6)
-                        renderOption(option, v)
 
-                        table.insert(optionRows, {
-                            Button = option,
-                            Value = v
+                        local optionScale = New("UIScale", {
+                            Scale = 0.985,
+                            Parent = option
                         })
 
+                        local entry = {
+                            Button = option,
+                            Value = v,
+                            Scale = optionScale,
+                            FilterToken = 0
+                        }
+
+                        table.insert(optionRows, entry)
+
+                        renderOption(option, v, false)
+                        option.TextTransparency = 1
+                        option.BackgroundTransparency = 1
+
+                        task.delay((index - 1) * 0.018, function()
+                            if option and option.Parent then
+                                local active = isSelected(v)
+
+                                Tween(option, 0.18, {
+                                    TextTransparency = 0,
+                                    BackgroundTransparency =
+                                        active and 0 or 0.25
+                                })
+
+                                Tween(optionScale, 0.20, {
+                                    Scale = 1
+                                })
+                            end
+                        end)
+
                         option.MouseEnter:Connect(function()
-                            Tween(option, 0.12, {
+                            Tween(option, 0.13, {
                                 BackgroundColor3 = T().Surface2,
                                 BackgroundTransparency = 0
+                            })
+
+                            Tween(optionScale, 0.13, {
+                                Scale = 1.012
                             })
                         end)
 
                         option.MouseLeave:Connect(function()
-                            renderOption(option, v)
+                            renderOption(option, v, true)
+
+                            Tween(optionScale, 0.13, {
+                                Scale = 1
+                            })
                         end)
 
                         option.MouseButton1Click:Connect(function()
+                            pulseOption(entry)
+
                             if multi then
                                 setMulti(v, true)
 
-                                -- Keep the dropdown open and refresh all checkmarks.
-                                for _, entry in ipairs(optionRows) do
-                                    renderOption(entry.Button, entry.Value)
+                                for _, other in ipairs(optionRows) do
+                                    renderOption(
+                                        other.Button,
+                                        other.Value,
+                                        true
+                                    )
                                 end
                             else
                                 setSingle(v, true)
@@ -2293,13 +2542,14 @@ function DriftwynUI:CreateWindow(config)
 
                     if SearchInput then
                         SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
-                            local query = string.lower(SearchInput.Text or "")
+                            local query =
+                                string.lower(SearchInput.Text or "")
 
                             for _, entry in ipairs(optionRows) do
                                 local optionText =
                                     string.lower(tostring(entry.Value))
 
-                                entry.Button.Visible =
+                                local shouldShow =
                                     query == ""
                                     or string.find(
                                         optionText,
@@ -2307,15 +2557,95 @@ function DriftwynUI:CreateWindow(config)
                                         1,
                                         true
                                     ) ~= nil
+
+                                entry.FilterToken += 1
+                                local filterToken = entry.FilterToken
+
+                                if shouldShow then
+                                    if not entry.Button.Visible then
+                                        entry.Button.Visible = true
+                                        entry.Button.Size =
+                                            UDim2.new(1, 0, 0, 0)
+                                        entry.Button.TextTransparency = 1
+                                        entry.Scale.Scale = 0.98
+                                    end
+
+                                    Tween(entry.Button, 0.16, {
+                                        Size = UDim2.new(1, 0, 0, 28),
+                                        TextTransparency = 0
+                                    })
+
+                                    Tween(entry.Scale, 0.16, {
+                                        Scale = 1
+                                    })
+
+                                    renderOption(
+                                        entry.Button,
+                                        entry.Value,
+                                        true
+                                    )
+                                else
+                                    Tween(entry.Button, 0.14, {
+                                        Size = UDim2.new(1, 0, 0, 0),
+                                        TextTransparency = 1,
+                                        BackgroundTransparency = 1
+                                    })
+
+                                    Tween(entry.Scale, 0.14, {
+                                        Scale = 0.98
+                                    })
+
+                                    task.delay(0.145, function()
+                                        if entry.FilterToken == filterToken
+                                        and entry.Button
+                                        and entry.Button.Parent then
+                                            entry.Button.Visible = false
+                                        end
+                                    end)
+                                end
                             end
                         end)
                     end
+
+                    Tween(
+                        popup,
+                        0.24,
+                        {
+                            Position = UDim2.fromOffset(
+                                popupX,
+                                popupY
+                            ),
+                            Size = UDim2.fromOffset(
+                                Button.AbsoluteSize.X,
+                                popupHeight
+                            ),
+                            GroupTransparency = 0
+                        },
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.Out
+                    )
+
+                    Tween(
+                        popupScale,
+                        0.24,
+                        {Scale = 1},
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.Out
+                    )
+
+                    Tween(
+                        popupStroke,
+                        0.24,
+                        {Transparency = 0.05},
+                        Enum.EasingStyle.Quint,
+                        Enum.EasingDirection.Out
+                    )
                 end)
 
                 ThemeBind(function(th)
                     Button.BackgroundColor3 = th.Background2
                     Button.TextColor3 = th.Text
-                    buttonStroke.Color = th.Border
+                    buttonStroke.Color = opened and th.Accent or th.Border
                     Arrow.TextColor3 = th.Accent
                 end)
 
@@ -2355,6 +2685,10 @@ function DriftwynUI:CreateWindow(config)
                                 end
                             end
                         end
+
+                        if opened then
+                            closePopup(false)
+                        end
                     end,
 
                     Clear = function()
@@ -2374,6 +2708,14 @@ function DriftwynUI:CreateWindow(config)
                         end
 
                         return value ~= nil and 1 or 0
+                    end,
+
+                    Close = function()
+                        closePopup(false)
+                    end,
+
+                    IsOpen = function()
+                        return opened
                     end
                 }
             end
