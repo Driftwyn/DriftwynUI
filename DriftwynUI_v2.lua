@@ -1,5 +1,5 @@
 --[[
-    Driftwyn UI v5.2
+    Driftwyn UI v5.4
     Black / crimson Roblox UI library inspired by the supplied Driftwyn Hub mockup.
 
     Remote usage:
@@ -708,7 +708,7 @@ function DriftwynUI:CreateWindow(config)
         Position = UDim2.fromOffset(60, 39),
         Size = UDim2.new(1, -92, 0, 20),
         Font = Enum.Font.Gotham,
-        Text = config.Version or "v5.2",
+        Text = config.Version or "v5.4",
         TextColor3 = T().TextDim,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -918,26 +918,242 @@ function DriftwynUI:CreateWindow(config)
     local minimized = false
     local fullSize = Root.Size
 
+    --========================================================
+    -- MINI CIRCLE
+    --========================================================
+
+    local MiniCircle = New("TextButton", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        AutoButtonColor = false,
+        BackgroundColor3 = T().Surface,
+        BorderSizePixel = 0,
+        Position = Root.Position,
+        Size = UDim2.fromOffset(60, 60),
+        Text = "",
+        Visible = false,
+        ZIndex = 300,
+        Parent = ScreenGui
+    })
+    Corner(MiniCircle, 30)
+
+    local miniStroke = Stroke(MiniCircle, T().Accent, 2, 0)
+
+    local MiniInner = New("Frame", {
+        AnchorPoint = Vector2.new(0.5, 0.5),
+        BackgroundColor3 = T().Background2,
+        BorderSizePixel = 0,
+        Position = UDim2.fromScale(0.5, 0.5),
+        Size = UDim2.fromOffset(50, 50),
+        ZIndex = 301,
+        Parent = MiniCircle
+    })
+    Corner(MiniInner, 25)
+
+    local MiniIcon
+    local MiniIconKind
+
+    if config.Icon and config.Icon ~= "" then
+        MiniIcon = New("ImageLabel", {
+            AnchorPoint = Vector2.new(0.5, 0.5),
+            BackgroundTransparency = 1,
+            Position = UDim2.fromScale(0.5, 0.5),
+            Size = UDim2.fromOffset(42, 42),
+            Image = ResolveIconContent(config.Icon),
+            ScaleType = Enum.ScaleType.Fit,
+            ZIndex = 302,
+            Parent = MiniInner
+        })
+        MiniIconKind = "image"
+    else
+        MiniIcon = New("TextLabel", {
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 1),
+            Font = Enum.Font.GothamBlack,
+            Text = "DH",
+            TextColor3 = T().Accent,
+            TextSize = 18,
+            ZIndex = 302,
+            Parent = MiniInner
+        })
+        MiniIconKind = "text"
+    end
+
+    ThemeBind(function(th)
+        MiniCircle.BackgroundColor3 = th.Surface
+        MiniInner.BackgroundColor3 = th.Background2
+        miniStroke.Color = th.Accent
+
+        if MiniIconKind == "text" then
+            MiniIcon.TextColor3 = th.Accent
+        end
+    end)
+
+    -- The minimized circle can be moved anywhere on screen.
+    ConnectDrag(MiniCircle, MiniCircle)
+
+    local restoreDebounce = false
+    local miniDragStart
+    local miniMoved = false
+
+    MiniCircle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            miniDragStart = input.Position
+            miniMoved = false
+        end
+    end)
+
+    UserInputService.InputChanged:Connect(function(input)
+        if miniDragStart and (
+            input.UserInputType == Enum.UserInputType.MouseMovement
+            or input.UserInputType == Enum.UserInputType.Touch
+        ) then
+            if (input.Position - miniDragStart).Magnitude > 6 then
+                miniMoved = true
+            end
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1
+        or input.UserInputType == Enum.UserInputType.Touch then
+            task.delay(0.05, function()
+                miniDragStart = nil
+            end)
+        end
+    end)
+
+    local function minimizeWindow()
+        if minimized or restoreDebounce then
+            return
+        end
+
+        restoreDebounce = true
+        minimized = true
+        fullSize = Root.Size
+
+        -- Put the circle where the full window currently is.
+        MiniCircle.Position = Root.Position
+
+        Tween(Root, 0.18, {
+            Size = UDim2.fromOffset(60, 60)
+        })
+
+        Tween(Shadow, 0.18, {
+            Size = UDim2.fromOffset(72, 72)
+        })
+
+        task.delay(0.17, function()
+            if not ScreenGui.Parent then
+                return
+            end
+
+            if minimized then
+                Root.Visible = false
+                Shadow.Visible = false
+
+                if not hidden then
+                    MiniCircle.Visible = true
+                end
+            end
+
+            restoreDebounce = false
+        end)
+    end
+
+    local function restoreWindow()
+        if not minimized or restoreDebounce then
+            return
+        end
+
+        restoreDebounce = true
+        minimized = false
+
+        local restorePosition = MiniCircle.Position
+
+        MiniCircle.Visible = false
+
+        Root.Position = restorePosition
+        Root.Size = UDim2.fromOffset(60, 60)
+        Root.Visible = not hidden
+
+        Shadow.Position = restorePosition + UDim2.fromOffset(0, 8)
+        Shadow.Size = UDim2.fromOffset(72, 72)
+        Shadow.Visible = not hidden
+
+        if not hidden then
+            Tween(Root, 0.25, {
+                Size = fullSize
+            })
+
+            Tween(Shadow, 0.25, {
+                Size = UDim2.fromOffset(width + 18, height + 18)
+            })
+        else
+            Root.Size = fullSize
+            Shadow.Size = UDim2.fromOffset(width + 18, height + 18)
+        end
+
+        task.delay(0.26, function()
+            restoreDebounce = false
+        end)
+    end
+
     function Window:SetVisible(state)
+        state = state ~= false
         hidden = not state
-        Root.Visible = state
-        Shadow.Visible = state
+
+        if minimized then
+            Root.Visible = false
+            Shadow.Visible = false
+            MiniCircle.Visible = state
+        else
+            MiniCircle.Visible = false
+            Root.Visible = state
+            Shadow.Visible = state
+        end
     end
 
     function Window:Toggle()
         self:SetVisible(hidden)
     end
 
-    Minimize.MouseButton1Click:Connect(function()
-        minimized = not minimized
-        if minimized then
-            fullSize = Root.Size
-            Tween(Root, 0.25, {Size = UDim2.fromOffset(width, 75)})
-            Tween(Shadow, 0.25, {Size = UDim2.fromOffset(width + 18, 93)})
-        else
-            Tween(Root, 0.25, {Size = fullSize})
-            Tween(Shadow, 0.25, {Size = UDim2.fromOffset(width + 18, height + 18)})
+    function Window:IsMinimized()
+        return minimized
+    end
+
+    function Window:Minimize()
+        minimizeWindow()
+    end
+
+    function Window:Restore()
+        restoreWindow()
+    end
+
+    Minimize.MouseButton1Click:Connect(minimizeWindow)
+
+    MiniCircle.MouseButton1Click:Connect(function()
+        -- Dragging the circle should not accidentally restore the window.
+        if miniMoved then
+            miniMoved = false
+            return
         end
+
+        restoreWindow()
+    end)
+
+    MiniCircle.MouseEnter:Connect(function()
+        Tween(MiniCircle, 0.14, {
+            Size = UDim2.fromOffset(64, 64),
+            BackgroundColor3 = T().Surface2
+        })
+    end)
+
+    MiniCircle.MouseLeave:Connect(function()
+        Tween(MiniCircle, 0.14, {
+            Size = UDim2.fromOffset(60, 60),
+            BackgroundColor3 = T().Surface
+        })
     end)
 
     Close.MouseButton1Click:Connect(function()
@@ -1649,11 +1865,58 @@ function DriftwynUI:CreateWindow(config)
 
             function Section:AddDropdown(rowData)
                 rowData = rowData or {}
+
                 local Row = MakeRow(rowData, "Dropdown", "♛")
                 local values = rowData.Values or {}
-                local value = rowData.Default or values[1] or "None"
+                local multi = rowData.Multi == true
+                local searchable = rowData.Searchable == true
                 local flag = rowData.Flag
-                if flag then Window.Flags[flag] = value end
+                local placeholder = tostring(rowData.Placeholder or "Select...")
+
+                local value
+                local selected = {}
+
+                local function copySelected()
+                    local copy = {}
+                    for k, v in pairs(selected) do
+                        if v == true then
+                            copy[k] = true
+                        end
+                    end
+                    return copy
+                end
+
+                if multi then
+                    local default = rowData.Default
+
+                    if type(default) == "table" then
+                        for k, v in pairs(default) do
+                            -- Supports:
+                            -- {"Rare", "Epic"}
+                            -- {Rare = true, Epic = true}
+                            if type(k) == "number" then
+                                if table.find(values, v) then
+                                    selected[v] = true
+                                end
+                            elseif v == true and table.find(values, k) then
+                                selected[k] = true
+                            end
+                        end
+                    elseif default ~= nil and table.find(values, default) then
+                        selected[default] = true
+                    end
+
+                    value = copySelected()
+                else
+                    local default = rowData.Default
+
+                    -- Also allow Default = 2 to select values[2].
+                    if type(default) == "number" and values[default] ~= nil then
+                        default = values[default]
+                    end
+
+                    value = default or values[1] or "None"
+                end
 
                 local Button = New("TextButton", {
                     AnchorPoint = Vector2.new(1, 0.5),
@@ -1661,9 +1924,9 @@ function DriftwynUI:CreateWindow(config)
                     BackgroundColor3 = T().Background2,
                     BorderSizePixel = 0,
                     Position = UDim2.new(1, -12, 0.5, 0),
-                    Size = UDim2.fromOffset(165, 34),
+                    Size = UDim2.fromOffset(185, 34),
                     Font = Enum.Font.Gotham,
-                    Text = "   " .. tostring(value),
+                    Text = "",
                     TextColor3 = T().Text,
                     TextSize = 11,
                     TextXAlignment = Enum.TextXAlignment.Left,
@@ -1671,6 +1934,7 @@ function DriftwynUI:CreateWindow(config)
                     Parent = Row
                 })
                 Corner(Button, 8)
+
                 local buttonStroke = Stroke(Button, T().Border, 1, 0.05)
 
                 local Arrow = New("TextLabel", {
@@ -1689,32 +1953,151 @@ function DriftwynUI:CreateWindow(config)
                 local popup
                 local opened = false
 
+                local function selectedCount()
+                    local count = 0
+                    for _, v in ipairs(values) do
+                        if selected[v] then
+                            count += 1
+                        end
+                    end
+                    return count
+                end
+
+                local function updateFlag()
+                    if not flag then
+                        return
+                    end
+
+                    if multi then
+                        Window.Flags[flag] = copySelected()
+                    else
+                        Window.Flags[flag] = value
+                    end
+                end
+
+                local function getCurrentValue()
+                    if multi then
+                        return copySelected()
+                    end
+
+                    return value
+                end
+
+                local function updateButton()
+                    if not multi then
+                        Button.Text = "   " .. tostring(value)
+                        return
+                    end
+
+                    local chosen = {}
+
+                    for _, v in ipairs(values) do
+                        if selected[v] then
+                            table.insert(chosen, tostring(v))
+                        end
+                    end
+
+                    if #chosen == 0 then
+                        Button.Text = "   " .. placeholder
+                    elseif #chosen <= 2 then
+                        Button.Text = "   " .. table.concat(chosen, ", ")
+                    else
+                        Button.Text = "   " .. tostring(#chosen) .. " selected"
+                    end
+                end
+
+                local function fireCallback()
+                    updateFlag()
+
+                    if rowData.Callback then
+                        task.spawn(rowData.Callback, getCurrentValue())
+                    end
+                end
+
                 local function closePopup()
                     opened = false
+
                     if popup then
                         popup:Destroy()
                         popup = nil
                     end
-                    Tween(Arrow, 0.15, {Rotation = 0})
+
+                    Tween(Arrow, 0.15, {
+                        Rotation = 0
+                    })
+                end
+
+                local function setSingle(v, call)
+                    if v == nil then
+                        return
+                    end
+
+                    value = v
+                    updateButton()
+                    updateFlag()
+
+                    if call ~= false and rowData.Callback then
+                        task.spawn(rowData.Callback, value)
+                    end
+
+                    closePopup()
+                end
+
+                local function setMulti(newValue, call)
+                    if type(newValue) == "table" then
+                        selected = {}
+
+                        for k, v in pairs(newValue) do
+                            if type(k) == "number" then
+                                if table.find(values, v) then
+                                    selected[v] = true
+                                end
+                            elseif v == true and table.find(values, k) then
+                                selected[k] = true
+                            end
+                        end
+                    elseif newValue ~= nil and table.find(values, newValue) then
+                        selected[newValue] = not selected[newValue]
+
+                        if not selected[newValue] then
+                            selected[newValue] = nil
+                        end
+                    end
+
+                    value = copySelected()
+                    updateButton()
+                    updateFlag()
+
+                    if call ~= false and rowData.Callback then
+                        task.spawn(rowData.Callback, copySelected())
+                    end
                 end
 
                 local function set(v, call)
-                    value = v
-                    Button.Text = "   " .. tostring(v)
-                    if flag then Window.Flags[flag] = v end
-                    if call ~= false and rowData.Callback then
-                        task.spawn(rowData.Callback, v)
+                    if multi then
+                        setMulti(v, call)
+                    else
+                        setSingle(v, call)
                     end
-                    closePopup()
                 end
+
+                updateButton()
+                updateFlag()
 
                 Button.MouseButton1Click:Connect(function()
                     if opened then
                         closePopup()
                         return
                     end
+
                     opened = true
-                    Tween(Arrow, 0.15, {Rotation = 180})
+
+                    Tween(Arrow, 0.15, {
+                        Rotation = 180
+                    })
+
+                    local searchHeight = searchable and 38 or 0
+                    local listHeight = math.min(#values * 30 + 8, 170)
 
                     popup = New("Frame", {
                         BackgroundColor3 = T().Background2,
@@ -1723,7 +2106,10 @@ function DriftwynUI:CreateWindow(config)
                             Button.AbsolutePosition.X,
                             Button.AbsolutePosition.Y + Button.AbsoluteSize.Y + 5
                         ),
-                        Size = UDim2.fromOffset(Button.AbsoluteSize.X, math.min(#values * 30 + 8, 160)),
+                        Size = UDim2.fromOffset(
+                            Button.AbsoluteSize.X,
+                            searchHeight + listHeight
+                        ),
                         ClipsDescendants = true,
                         ZIndex = 400,
                         Parent = ScreenGui
@@ -1731,10 +2117,34 @@ function DriftwynUI:CreateWindow(config)
                     Corner(popup, 8)
                     Stroke(popup, T().Border, 1, 0)
 
+                    local SearchInput
+
+                    if searchable then
+                        SearchInput = New("TextBox", {
+                            BackgroundColor3 = T().Surface,
+                            BorderSizePixel = 0,
+                            ClearTextOnFocus = false,
+                            Position = UDim2.fromOffset(5, 5),
+                            Size = UDim2.new(1, -10, 0, 29),
+                            Font = Enum.Font.Gotham,
+                            PlaceholderText = "Search...",
+                            PlaceholderColor3 = T().TextFaint,
+                            Text = "",
+                            TextColor3 = T().Text,
+                            TextSize = 10,
+                            TextXAlignment = Enum.TextXAlignment.Left,
+                            ZIndex = 402,
+                            Parent = popup
+                        })
+                        Padding(SearchInput, 9, 9, 0, 0)
+                        Corner(SearchInput, 6)
+                    end
+
                     local list = New("ScrollingFrame", {
                         BackgroundTransparency = 1,
                         BorderSizePixel = 0,
-                        Size = UDim2.fromScale(1, 1),
+                        Position = UDim2.fromOffset(0, searchHeight),
+                        Size = UDim2.new(1, 0, 1, -searchHeight),
                         CanvasSize = UDim2.new(),
                         AutomaticCanvasSize = Enum.AutomaticSize.Y,
                         ScrollBarThickness = 2,
@@ -1742,40 +2152,111 @@ function DriftwynUI:CreateWindow(config)
                         ZIndex = 401,
                         Parent = popup
                     })
+
                     Padding(list, 4, 4, 4, 4)
+
                     New("UIListLayout", {
                         Padding = UDim.new(0, 2),
                         SortOrder = Enum.SortOrder.LayoutOrder,
                         Parent = list
                     })
 
+                    local optionRows = {}
+
+                    local function isSelected(v)
+                        if multi then
+                            return selected[v] == true
+                        end
+
+                        return v == value
+                    end
+
+                    local function renderOption(option, v)
+                        local active = isSelected(v)
+
+                        option.BackgroundColor3 =
+                            active and Darken(T().Accent, 0.78) or T().Surface
+
+                        option.BackgroundTransparency =
+                            active and 0 or 0.25
+
+                        option.TextColor3 =
+                            active and T().Accent or T().TextDim
+
+                        if multi then
+                            option.Text =
+                                (active and "  ✓  " or "     ") .. tostring(v)
+                        else
+                            option.Text = "  " .. tostring(v)
+                        end
+                    end
+
                     for _, v in ipairs(values) do
                         local option = New("TextButton", {
                             AutoButtonColor = false,
-                            BackgroundColor3 = (v == value) and Darken(T().Accent, 0.78) or T().Surface,
-                            BackgroundTransparency = (v == value) and 0 or 0.25,
+                            BackgroundColor3 = T().Surface,
+                            BackgroundTransparency = 0.25,
                             BorderSizePixel = 0,
                             Size = UDim2.new(1, 0, 0, 28),
                             Font = Enum.Font.Gotham,
-                            Text = "  " .. tostring(v),
-                            TextColor3 = (v == value) and T().Accent or T().TextDim,
+                            Text = "",
+                            TextColor3 = T().TextDim,
                             TextSize = 11,
                             TextXAlignment = Enum.TextXAlignment.Left,
                             ZIndex = 402,
                             Parent = list
                         })
+
                         Corner(option, 6)
+                        renderOption(option, v)
+
+                        table.insert(optionRows, {
+                            Button = option,
+                            Value = v
+                        })
+
                         option.MouseEnter:Connect(function()
-                            Tween(option, 0.12, {BackgroundColor3 = T().Surface2, BackgroundTransparency = 0})
-                        end)
-                        option.MouseLeave:Connect(function()
                             Tween(option, 0.12, {
-                                BackgroundColor3 = (v == value) and Darken(T().Accent, 0.78) or T().Surface,
-                                BackgroundTransparency = (v == value) and 0 or 0.25
+                                BackgroundColor3 = T().Surface2,
+                                BackgroundTransparency = 0
                             })
                         end)
+
+                        option.MouseLeave:Connect(function()
+                            renderOption(option, v)
+                        end)
+
                         option.MouseButton1Click:Connect(function()
-                            set(v, true)
+                            if multi then
+                                setMulti(v, true)
+
+                                -- Keep the dropdown open and refresh all checkmarks.
+                                for _, entry in ipairs(optionRows) do
+                                    renderOption(entry.Button, entry.Value)
+                                end
+                            else
+                                setSingle(v, true)
+                            end
+                        end)
+                    end
+
+                    if SearchInput then
+                        SearchInput:GetPropertyChangedSignal("Text"):Connect(function()
+                            local query = string.lower(SearchInput.Text or "")
+
+                            for _, entry in ipairs(optionRows) do
+                                local optionText =
+                                    string.lower(tostring(entry.Value))
+
+                                entry.Button.Visible =
+                                    query == ""
+                                    or string.find(
+                                        optionText,
+                                        query,
+                                        1,
+                                        true
+                                    ) ~= nil
+                            end
                         end)
                     end
                 end)
@@ -1788,15 +2269,68 @@ function DriftwynUI:CreateWindow(config)
                 end)
 
                 return {
-                    Set = function(_, v) set(v, true) end,
-                    Get = function() return value end,
+                    Set = function(_, v)
+                        set(v, true)
+                    end,
+
+                    Get = function()
+                        return getCurrentValue()
+                    end,
+
                     Refresh = function(_, newValues)
                         values = newValues or {}
-                        if not table.find(values, value) and values[1] then
-                            set(values[1], true)
+
+                        if multi then
+                            local cleaned = {}
+
+                            for _, v in ipairs(values) do
+                                if selected[v] then
+                                    cleaned[v] = true
+                                end
+                            end
+
+                            selected = cleaned
+                            value = copySelected()
+                            updateButton()
+                            updateFlag()
+                        else
+                            if not table.find(values, value) then
+                                if values[1] then
+                                    setSingle(values[1], true)
+                                else
+                                    value = "None"
+                                    updateButton()
+                                    updateFlag()
+                                end
+                            end
                         end
+                    end,
+
+                    Clear = function()
+                        if multi then
+                            selected = {}
+                            value = {}
+                            updateButton()
+                            fireCallback()
+                        elseif values[1] then
+                            setSingle(values[1], true)
+                        end
+                    end,
+
+                    Count = function()
+                        if multi then
+                            return selectedCount()
+                        end
+
+                        return value ~= nil and 1 or 0
                     end
                 }
+            end
+
+            function Section:AddMultiDropdown(rowData)
+                rowData = rowData or {}
+                rowData.Multi = true
+                return self:AddDropdown(rowData)
             end
 
             function Section:AddTextbox(rowData)
