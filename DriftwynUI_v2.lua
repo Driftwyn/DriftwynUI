@@ -1,5 +1,5 @@
 --[[
-    Driftwyn UI v5.4
+    Driftwyn UI v5.5
     Black / crimson Roblox UI library inspired by the supplied Driftwyn Hub mockup.
 
     Remote usage:
@@ -385,6 +385,10 @@ function DriftwynUI:CreateWindow(config)
 
     Window.ScreenGui = ScreenGui
 
+    -- Only one dropdown popup may be open at a time.
+    -- This prevents multiple dropdown menus from stacking over each other.
+    local ActiveDropdownClose = nil
+
     local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1366, 768)
     local wanted = config.Size or UDim2.fromOffset(860, 560)
     local width = math.min(wanted.X.Offset, math.max(700, viewport.X - 40))
@@ -708,7 +712,7 @@ function DriftwynUI:CreateWindow(config)
         Position = UDim2.fromOffset(60, 39),
         Size = UDim2.new(1, -92, 0, 20),
         Font = Enum.Font.Gotham,
-        Text = config.Version or "v5.4",
+        Text = config.Version or "v5.5",
         TextColor3 = T().TextDim,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -1103,6 +1107,10 @@ function DriftwynUI:CreateWindow(config)
         state = state ~= false
         hidden = not state
 
+        if not state and ActiveDropdownClose then
+            ActiveDropdownClose()
+        end
+
         if minimized then
             Root.Visible = false
             Shadow.Visible = false
@@ -1123,6 +1131,9 @@ function DriftwynUI:CreateWindow(config)
     end
 
     function Window:Minimize()
+        if ActiveDropdownClose then
+            ActiveDropdownClose()
+        end
         minimizeWindow()
     end
 
@@ -1157,6 +1168,9 @@ function DriftwynUI:CreateWindow(config)
     end)
 
     Close.MouseButton1Click:Connect(function()
+        if ActiveDropdownClose then
+            ActiveDropdownClose()
+        end
         ScreenGui:Destroy()
     end)
 
@@ -2022,6 +2036,10 @@ function DriftwynUI:CreateWindow(config)
                         popup = nil
                     end
 
+                    if ActiveDropdownClose == closePopup then
+                        ActiveDropdownClose = nil
+                    end
+
                     Tween(Arrow, 0.15, {
                         Rotation = 0
                     })
@@ -2090,7 +2108,13 @@ function DriftwynUI:CreateWindow(config)
                         return
                     end
 
+                    -- Close any other dropdown before opening this one.
+                    if ActiveDropdownClose and ActiveDropdownClose ~= closePopup then
+                        ActiveDropdownClose()
+                    end
+
                     opened = true
+                    ActiveDropdownClose = closePopup
 
                     Tween(Arrow, 0.15, {
                         Rotation = 180
@@ -2098,17 +2122,44 @@ function DriftwynUI:CreateWindow(config)
 
                     local searchHeight = searchable and 38 or 0
                     local listHeight = math.min(#values * 30 + 8, 170)
+                    local popupHeight = searchHeight + listHeight
+
+                    -- Prefer opening below the control. If there is not enough
+                    -- room on-screen, open upward instead.
+                    local buttonPos = Button.AbsolutePosition
+                    local buttonSize = Button.AbsoluteSize
+                    local camera = workspace.CurrentCamera
+                    local viewportSize = camera and camera.ViewportSize or Vector2.new(1366, 768)
+
+                    local popupX = buttonPos.X
+                    local popupY = buttonPos.Y + buttonSize.Y + 5
+
+                    if popupY + popupHeight > viewportSize.Y - 8 then
+                        popupY = buttonPos.Y - popupHeight - 5
+                    end
+
+                    popupX = math.clamp(
+                        popupX,
+                        8,
+                        math.max(8, viewportSize.X - buttonSize.X - 8)
+                    )
+
+                    popupY = math.clamp(
+                        popupY,
+                        8,
+                        math.max(8, viewportSize.Y - popupHeight - 8)
+                    )
 
                     popup = New("Frame", {
                         BackgroundColor3 = T().Background2,
                         BorderSizePixel = 0,
                         Position = UDim2.fromOffset(
-                            Button.AbsolutePosition.X,
-                            Button.AbsolutePosition.Y + Button.AbsoluteSize.Y + 5
+                            popupX,
+                            popupY
                         ),
                         Size = UDim2.fromOffset(
                             Button.AbsoluteSize.X,
-                            searchHeight + listHeight
+                            popupHeight
                         ),
                         ClipsDescendants = true,
                         ZIndex = 400,
