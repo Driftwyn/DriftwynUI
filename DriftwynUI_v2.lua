@@ -1,5 +1,5 @@
 --[[
-    Driftwyn UI v5.6
+    Driftwyn UI v5.7
     Black / crimson Roblox UI library inspired by the supplied Driftwyn Hub mockup.
 
     Remote usage:
@@ -71,14 +71,60 @@ local function Padding(parent, l, r, t, b)
     })
 end
 
+local ActiveTweens = setmetatable({}, {__mode = "k"})
+
 local function Tween(obj, duration, props, style, direction)
-    local t = TweenService:Create(
+    if not obj or not obj.Parent then
+        return nil
+    end
+
+    local objectTweens = ActiveTweens[obj]
+    if not objectTweens then
+        objectTweens = {}
+        ActiveTweens[obj] = objectTweens
+    end
+
+    -- Cancel only older tweens that animate one of the same properties.
+    local cancelled = {}
+    for propertyName in pairs(props) do
+        local previous = objectTweens[propertyName]
+        if previous and not cancelled[previous] then
+            cancelled[previous] = true
+            pcall(function()
+                previous:Cancel()
+            end)
+        end
+    end
+
+    local tween = TweenService:Create(
         obj,
-        TweenInfo.new(duration or 0.22, style or Enum.EasingStyle.Quint, direction or Enum.EasingDirection.Out),
+        TweenInfo.new(
+            duration or 0.26,
+            style or Enum.EasingStyle.Quint,
+            direction or Enum.EasingDirection.Out
+        ),
         props
     )
-    t:Play()
-    return t
+
+    for propertyName in pairs(props) do
+        objectTweens[propertyName] = tween
+    end
+
+    tween.Completed:Connect(function()
+        local current = ActiveTweens[obj]
+        if not current then
+            return
+        end
+
+        for propertyName in pairs(props) do
+            if current[propertyName] == tween then
+                current[propertyName] = nil
+            end
+        end
+    end)
+
+    tween:Play()
+    return tween
 end
 
 local function Clamp01(v)
@@ -712,7 +758,7 @@ function DriftwynUI:CreateWindow(config)
         Position = UDim2.fromOffset(60, 39),
         Size = UDim2.new(1, -92, 0, 20),
         Font = Enum.Font.Gotham,
-        Text = config.Version or "v5.6",
+        Text = config.Version or "v5.7",
         TextColor3 = T().TextDim,
         TextSize = 11,
         TextXAlignment = Enum.TextXAlignment.Left,
@@ -1039,15 +1085,23 @@ function DriftwynUI:CreateWindow(config)
         -- Put the circle where the full window currently is.
         MiniCircle.Position = Root.Position
 
-        Tween(Root, 0.18, {
-            Size = UDim2.fromOffset(60, 60)
-        })
+        Tween(
+            Root,
+            0.30,
+            {Size = UDim2.fromOffset(60, 60)},
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.InOut
+        )
 
-        Tween(Shadow, 0.18, {
-            Size = UDim2.fromOffset(72, 72)
-        })
+        Tween(
+            Shadow,
+            0.30,
+            {Size = UDim2.fromOffset(72, 72)},
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.InOut
+        )
 
-        task.delay(0.17, function()
+        task.delay(0.28, function()
             if not ScreenGui.Parent then
                 return
             end
@@ -1086,19 +1140,27 @@ function DriftwynUI:CreateWindow(config)
         Shadow.Visible = not hidden
 
         if not hidden then
-            Tween(Root, 0.25, {
-                Size = fullSize
-            })
+            Tween(
+                Root,
+                0.34,
+                {Size = fullSize},
+                Enum.EasingStyle.Back,
+                Enum.EasingDirection.Out
+            )
 
-            Tween(Shadow, 0.25, {
-                Size = UDim2.fromOffset(width + 18, height + 18)
-            })
+            Tween(
+                Shadow,
+                0.34,
+                {Size = UDim2.fromOffset(width + 18, height + 18)},
+                Enum.EasingStyle.Quint,
+                Enum.EasingDirection.Out
+            )
         else
             Root.Size = fullSize
             Shadow.Size = UDim2.fromOffset(width + 18, height + 18)
         end
 
-        task.delay(0.26, function()
+        task.delay(0.35, function()
             restoreDebounce = false
         end)
     end
@@ -1154,17 +1216,29 @@ function DriftwynUI:CreateWindow(config)
     end)
 
     MiniCircle.MouseEnter:Connect(function()
-        Tween(MiniCircle, 0.14, {
-            Size = UDim2.fromOffset(64, 64),
-            BackgroundColor3 = T().Surface2
-        })
+        Tween(
+            MiniCircle,
+            0.24,
+            {
+                Size = UDim2.fromOffset(66, 66),
+                BackgroundColor3 = T().Surface2
+            },
+            Enum.EasingStyle.Back,
+            Enum.EasingDirection.Out
+        )
     end)
 
     MiniCircle.MouseLeave:Connect(function()
-        Tween(MiniCircle, 0.14, {
-            Size = UDim2.fromOffset(60, 60),
-            BackgroundColor3 = T().Surface
-        })
+        Tween(
+            MiniCircle,
+            0.24,
+            {
+                Size = UDim2.fromOffset(60, 60),
+                BackgroundColor3 = T().Surface
+            },
+            Enum.EasingStyle.Quint,
+            Enum.EasingDirection.Out
+        )
     end)
 
     Close.MouseButton1Click:Connect(function()
@@ -1656,10 +1730,23 @@ function DriftwynUI:CreateWindow(config)
                 end)
 
                 Row.MouseEnter:Connect(function()
-                    Tween(Row, 0.13, {BackgroundColor3 = T().Surface2})
+                    Tween(
+                        Row,
+                        0.22,
+                        {BackgroundColor3 = T().Surface2},
+                        Enum.EasingStyle.Sine,
+                        Enum.EasingDirection.Out
+                    )
                 end)
+
                 Row.MouseLeave:Connect(function()
-                    Tween(Row, 0.13, {BackgroundColor3 = T().Surface})
+                    Tween(
+                        Row,
+                        0.24,
+                        {BackgroundColor3 = T().Surface},
+                        Enum.EasingStyle.Sine,
+                        Enum.EasingDirection.Out
+                    )
                 end)
 
                 return Row, RowName, RowDesc
@@ -1702,8 +1789,21 @@ function DriftwynUI:CreateWindow(config)
                     local pos = value and UDim2.new(1, -21, 0.5, 0) or UDim2.new(0, 3, 0.5, 0)
                     local col = value and T().Accent or T().Surface3
                     if animated then
-                        Tween(Track, 0.16, {BackgroundColor3 = col})
-                        Tween(Knob, 0.16, {Position = pos})
+                        Tween(
+                            Track,
+                            0.24,
+                            {BackgroundColor3 = col},
+                            Enum.EasingStyle.Quint,
+                            Enum.EasingDirection.Out
+                        )
+
+                        Tween(
+                            Knob,
+                            0.26,
+                            {Position = pos},
+                            Enum.EasingStyle.Back,
+                            Enum.EasingDirection.Out
+                        )
                     else
                         Track.BackgroundColor3 = col
                         Knob.Position = pos
@@ -1968,18 +2068,39 @@ function DriftwynUI:CreateWindow(config)
                     Parent = Button
                 })
 
-                local Arrow = New("TextLabel", {
+                local Arrow = New("Frame", {
                     AnchorPoint = Vector2.new(1, 0.5),
                     BackgroundTransparency = 1,
-                    Position = UDim2.new(1, -8, 0.5, 0),
-                    Size = UDim2.fromOffset(20, 20),
-                    Font = Enum.Font.GothamBold,
-                    Text = "⌄",
-                    TextColor3 = T().Accent,
-                    TextSize = 16,
+                    Position = UDim2.new(1, -9, 0.5, 0),
+                    Size = UDim2.fromOffset(16, 16),
+                    Rotation = 0,
                     ZIndex = 13,
                     Parent = Button
                 })
+
+                local ArrowLeft = New("Frame", {
+                    AnchorPoint = Vector2.new(1, 0.5),
+                    BackgroundColor3 = T().Accent,
+                    BorderSizePixel = 0,
+                    Position = UDim2.new(0.5, 1, 0.5, 0),
+                    Size = UDim2.fromOffset(7, 2),
+                    Rotation = 42,
+                    ZIndex = 14,
+                    Parent = Arrow
+                })
+                Corner(ArrowLeft, 1)
+
+                local ArrowRight = New("Frame", {
+                    AnchorPoint = Vector2.new(0, 0.5),
+                    BackgroundColor3 = T().Accent,
+                    BorderSizePixel = 0,
+                    Position = UDim2.new(0.5, -1, 0.5, 0),
+                    Size = UDim2.fromOffset(7, 2),
+                    Rotation = -42,
+                    ZIndex = 14,
+                    Parent = Arrow
+                })
+                Corner(ArrowRight, 1)
 
                 local popup
                 local popupScale
@@ -2057,7 +2178,7 @@ function DriftwynUI:CreateWindow(config)
 
                     Tween(
                         Arrow,
-                        instant and 0.01 or 0.18,
+                        instant and 0.01 or 0.24,
                         {Rotation = 0},
                         Enum.EasingStyle.Quint,
                         Enum.EasingDirection.Out
@@ -2099,7 +2220,7 @@ function DriftwynUI:CreateWindow(config)
 
                     Tween(
                         closingPopup,
-                        0.18,
+                        0.26,
                         {
                             Position = UDim2.fromOffset(
                                 currentPosition.X.Offset,
@@ -2111,21 +2232,21 @@ function DriftwynUI:CreateWindow(config)
                             ),
                             GroupTransparency = 1
                         },
-                        Enum.EasingStyle.Quint,
+                        Enum.EasingStyle.Quart,
                         Enum.EasingDirection.In
                     )
 
                     if closingScale then
                         Tween(
                             closingScale,
-                            0.18,
-                            {Scale = 0.975},
-                            Enum.EasingStyle.Quint,
+                            0.26,
+                            {Scale = 0.94},
+                            Enum.EasingStyle.Quart,
                             Enum.EasingDirection.In
                         )
                     end
 
-                    task.delay(0.19, function()
+                    task.delay(0.27, function()
                         if closingPopup and closingPopup.Parent then
                             closingPopup:Destroy()
                         end
@@ -2200,7 +2321,7 @@ function DriftwynUI:CreateWindow(config)
                         })
                     end
 
-                    Tween(ButtonScale, 0.16, {
+                    Tween(ButtonScale, 0.20, {
                         Scale = 1.012
                     })
                 end)
@@ -2216,19 +2337,19 @@ function DriftwynUI:CreateWindow(config)
                         })
                     end
 
-                    Tween(ButtonScale, 0.16, {
+                    Tween(ButtonScale, 0.20, {
                         Scale = 1
                     })
                 end)
 
                 Button.MouseButton1Down:Connect(function()
-                    Tween(ButtonScale, 0.09, {
+                    Tween(ButtonScale, 0.11, {
                         Scale = 0.985
                     })
                 end)
 
                 Button.MouseButton1Up:Connect(function()
-                    Tween(ButtonScale, 0.13, {
+                    Tween(ButtonScale, 0.18, {
                         Scale = 1.012
                     })
                 end)
@@ -2240,7 +2361,7 @@ function DriftwynUI:CreateWindow(config)
                     end
 
                     if ActiveDropdownClose and ActiveDropdownClose ~= closePopup then
-                        ActiveDropdownClose(false)
+                        ActiveDropdownClose(true)
                     end
 
                     opened = true
@@ -2248,7 +2369,7 @@ function DriftwynUI:CreateWindow(config)
 
                     Tween(
                         Arrow,
-                        0.22,
+                        0.30,
                         {Rotation = 180},
                         Enum.EasingStyle.Quint,
                         Enum.EasingDirection.Out
@@ -2328,7 +2449,7 @@ function DriftwynUI:CreateWindow(config)
                     )
 
                     popupScale = New("UIScale", {
-                        Scale = 0.975,
+                        Scale = 0.94,
                         Parent = popup
                     })
 
@@ -2486,19 +2607,29 @@ function DriftwynUI:CreateWindow(config)
                         option.TextTransparency = 1
                         option.BackgroundTransparency = 1
 
-                        task.delay((index - 1) * 0.018, function()
+                        task.delay(0.06 + ((index - 1) * 0.026), function()
                             if option and option.Parent then
                                 local active = isSelected(v)
 
-                                Tween(option, 0.18, {
-                                    TextTransparency = 0,
-                                    BackgroundTransparency =
-                                        active and 0 or 0.25
-                                })
+                                Tween(
+                                    option,
+                                    0.22,
+                                    {
+                                        TextTransparency = 0,
+                                        BackgroundTransparency =
+                                            active and 0 or 0.25
+                                    },
+                                    Enum.EasingStyle.Quint,
+                                    Enum.EasingDirection.Out
+                                )
 
-                                Tween(optionScale, 0.20, {
-                                    Scale = 1
-                                })
+                                Tween(
+                                    optionScale,
+                                    0.24,
+                                    {Scale = 1},
+                                    Enum.EasingStyle.Back,
+                                    Enum.EasingDirection.Out
+                                )
                             end
                         end)
 
@@ -2609,7 +2740,7 @@ function DriftwynUI:CreateWindow(config)
 
                     Tween(
                         popup,
-                        0.24,
+                        0.34,
                         {
                             Position = UDim2.fromOffset(
                                 popupX,
@@ -2627,15 +2758,15 @@ function DriftwynUI:CreateWindow(config)
 
                     Tween(
                         popupScale,
-                        0.24,
+                        0.34,
                         {Scale = 1},
-                        Enum.EasingStyle.Quint,
+                        Enum.EasingStyle.Back,
                         Enum.EasingDirection.Out
                     )
 
                     Tween(
                         popupStroke,
-                        0.24,
+                        0.30,
                         {Transparency = 0.05},
                         Enum.EasingStyle.Quint,
                         Enum.EasingDirection.Out
@@ -2646,7 +2777,8 @@ function DriftwynUI:CreateWindow(config)
                     Button.BackgroundColor3 = th.Background2
                     Button.TextColor3 = th.Text
                     buttonStroke.Color = opened and th.Accent or th.Border
-                    Arrow.TextColor3 = th.Accent
+                    ArrowLeft.BackgroundColor3 = th.Accent
+                    ArrowRight.BackgroundColor3 = th.Accent
                 end)
 
                 return {
